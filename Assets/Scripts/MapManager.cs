@@ -18,6 +18,8 @@ public class MapManager : MonoBehaviour
 
     [Header("References")]
     public NoteSpawner noteSpawner;
+    public Dropdown modeSelect;
+    public Dropdown diffSelect;
 
     [HideInInspector]
     public MapData mapData;
@@ -35,6 +37,9 @@ public class MapManager : MonoBehaviour
     [Header("Debugging")]
     public string selectedFolder;
 
+    private List<string> modes = new List<string>();
+    private List<List<string>> diffsList = new List<List<string>>();
+
     void Start()
     {
 #if UNITY_EDITOR
@@ -45,15 +50,28 @@ public class MapManager : MonoBehaviour
 
         GlobalData.bpm = mapData._beatsPerMinute;
         GlobalData.audioOffset = mapData._songTimeOffset / 1000f;
+        foreach(DifficultyBeatmapSet mode in mapData._difficultyBeatmapSets)
+        {
+            modes.Add(mode._beatmapCharacteristicName);
+            List<string> diffs = new List<string>();
+            foreach(DifficultyBeatmap diff in mode._difficultyBeatmaps)
+            {
+                diffs.Add(diff._difficulty);
+            }
+            diffsList.Add(diffs);
+        }
 
-        loadDifficulty(0, 0);
+        modeSelect.AddOptions(modes);
+        ReloadDiffOptions();
+
+        LoadDifficulty(0, 0);
 
         audioSource = GetComponent<AudioSource>();
 
         StartCoroutine(loadSong());
 
         volume.value = defaultVolume;
-        updateVolume();
+        UpdateVolume();
     }
 
     void Update()
@@ -141,18 +159,18 @@ public class MapManager : MonoBehaviour
         return JsonUtility.FromJson<T>(reader.ReadToEnd());
     }
 
-    public void updateVolume()
+    public void UpdateVolume()
     {
         volumeDisplay.text = ((int) volume.value).ToString();
         audioSource.volume = volume.value / 100f;
     }
 
-    public void resyncAudio()
+    public void ResyncAudio()
     {
         audioSource.time = (60 * (GlobalData.currentBeat) / GlobalData.bpm) + GlobalData.audioOffset;
     }
 
-    public void loadDifficulty(int type, int difficulty)
+    public void LoadDifficulty(int type, int difficulty)
     {
         DifficultyBeatmap difficultyBeatMap = mapData._difficultyBeatmapSets[type]._difficultyBeatmaps[difficulty];
         difData = ImportJson<DifData>(GlobalData.selectedFolder + "/" + difficultyBeatMap._beatmapFilename);
@@ -162,5 +180,20 @@ public class MapManager : MonoBehaviour
         GlobalData.spawnOffset = difficultyBeatMap._noteJumpStartBeatOffset;
 
         GlobalData.HJD = Mathf.Max(0.25f, (4 / Mathf.Pow(2, Mathf.Floor((GlobalData.jumpSpeed / GlobalData.bpm) / .075f))) + GlobalData.spawnOffset);
+    }
+
+    public void ReloadDifficulty()
+    {
+        noteSpawner.ClearNotes();
+        currentNoteIndex = -1;
+        oldestNoteIndex = 0;
+        prevBeat = 0;
+        LoadDifficulty(modeSelect.value, diffSelect.value);
+    }
+
+    public void ReloadDiffOptions()
+    {
+        diffSelect.ClearOptions();
+        diffSelect.AddOptions(diffsList[modeSelect.value]);
     }
 }

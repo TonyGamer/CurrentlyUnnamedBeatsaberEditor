@@ -12,12 +12,14 @@ public class MapData
 [Serializable]
 public class DifficultyBeatmapSet
 {
+    public string _beatmapCharacteristicName;
     public DifficultyBeatmap[] _difficultyBeatmaps;
 }
 
 [Serializable]
 public class DifficultyBeatmap
 {
+    public string _difficulty;
     public string _beatmapFilename;
     public float _noteJumpMovementSpeed;
     public float _noteJumpStartBeatOffset;

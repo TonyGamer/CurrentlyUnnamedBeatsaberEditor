@@ -83,5 +83,13 @@ public class NoteSpawner : MonoBehaviour
         noteComp.type = type;
 
         notes.Add(spawnedNote);
-    } 
+    }
+
+    public void ClearNotes()
+    {
+        foreach(GameObject note in notes)
+        {
+            Object.Destroy(note);
+        }
+    }
 }

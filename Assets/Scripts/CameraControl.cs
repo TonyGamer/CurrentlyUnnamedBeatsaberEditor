@@ -221,7 +221,7 @@ public class CameraControl : MonoBehaviour
         {
             if (!pausePrev)
             {
-                mapManager.resyncAudio();
+                mapManager.ResyncAudio();
                 GlobalData.paused = !GlobalData.paused;
                 pausePrev = true;
             }
@@ -288,7 +288,7 @@ public class CameraControl : MonoBehaviour
             if (!leftPrev)
             {
                 GlobalData.currentBeat -= GlobalData.beatPrecision;
-                mapManager.resyncAudio();
+                mapManager.ResyncAudio();
                 leftPrev = true;
             }
         }
@@ -311,7 +311,7 @@ public class CameraControl : MonoBehaviour
             if (!rightPrev)
             {
                 GlobalData.currentBeat += GlobalData.beatPrecision;
-                mapManager.resyncAudio();
+                mapManager.ResyncAudio();
                 rightPrev = true;
             }
         }
