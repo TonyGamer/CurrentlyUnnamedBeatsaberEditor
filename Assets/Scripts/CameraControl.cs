@@ -1,4 +1,4 @@
-﻿// Most of the code is borrowed from https://stackoverflow.com/questions/58328209/how-to-make-a-free-fly-camera-script-in-unity-with-acceleration-and-decceleratio
+﻿// Much of this code is borrowed from https://stackoverflow.com/questions/58328209/how-to-make-a-free-fly-camera-script-in-unity-with-acceleration-and-decceleratio
 
 using System;
 using System.Collections;
@@ -8,7 +8,6 @@ using UnityEngine;
 public class CameraControl : MonoBehaviour
 {
     [Header("Constants")]
-
     //unity controls and constants input
     public float AccelerationMod;
     public float XAxisSensitivity;
@@ -16,29 +15,45 @@ public class CameraControl : MonoBehaviour
     public float DecelerationMod;
 
     [Space]
-
     [Range(0, 89)] public float MaxXAngle = 60f;
-
     [Space]
 
-    public float MaximumMovementSpeed = 1f;
+    public float SprintSpeed = 0.1f;
+    public float NormalSpeed = 0.03f;
+    private float MaximumMovementSpeed = 0;
 
     [Header("Controls")]
-
     public KeyCode Forwards = KeyCode.W;
     public KeyCode Backwards = KeyCode.S;
     public KeyCode Left = KeyCode.A;
     public KeyCode Right = KeyCode.D;
     public KeyCode Up = KeyCode.Q;
     public KeyCode Down = KeyCode.E;
+    public KeyCode Sprint = KeyCode.LeftShift;
+
+    [Header("Key Repeat")]
+    public float repeatStart = 0.5f;
+    public float repeatDelay = 0.05f;
+
+    [Header("References")]
+    public MenuManager menuManager;
+    public MapManager mapManager;
 
     private Vector3 _moveSpeed;
 
+    // Single click buttons
+    private bool menuPrev = false;
     private bool pausePrev = false;
     private bool upPrev = false;
     private bool downPrev = false;
     private bool leftPrev = false;
     private bool rightPrev = false;
+
+    // Button Repeat Timers
+    private float upTimer = 0;
+    private float downTimer = 0;
+    private float leftTimer = 0;
+    private float rightTimer = 0;
 
     private void Start()
     {
@@ -48,13 +63,26 @@ public class CameraControl : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        HandleMouseRotation();
+        HandleEditorControls();
 
-        var acceleration = HandleKeyInput();
+        var acceleration = Vector3.zero;
 
-        _moveSpeed += acceleration;
+        if (!menuManager.gameObject.activeSelf)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
 
-        HandleDeceleration(acceleration);
+            HandleMouseRotation();
+            acceleration = HandleCameraAcceleration();
+        } else
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+
+        _moveSpeed += Time.deltaTime * acceleration;
+
+        HandleDeceleration(Time.deltaTime * acceleration);
 
         // clamp the move speed
         if (_moveSpeed.magnitude > MaximumMovementSpeed)
@@ -65,11 +93,10 @@ public class CameraControl : MonoBehaviour
         transform.Translate(_moveSpeed);
     }
 
-    private Vector3 HandleKeyInput()
+    private Vector3 HandleCameraAcceleration()
     {
         var acceleration = Vector3.zero;
 
-        //key input detection
         if (Input.GetKey(Forwards))
         {
             acceleration.z += 1;
@@ -100,69 +127,13 @@ public class CameraControl : MonoBehaviour
             acceleration.y -= 1;
         }
 
-        if (Input.GetKey(KeyCode.Space))
+        if (Input.GetKey(Sprint))
         {
-            if (!pausePrev)
-            {
-                GlobalData.paused = !GlobalData.paused;
-                pausePrev = true;
-            }
+            MaximumMovementSpeed = SprintSpeed;
         }
         else
         {
-            pausePrev = false;
-        }
-
-        if (Input.GetKey(KeyCode.UpArrow))
-        {
-            if (!upPrev)
-            {
-                GlobalData.beatPrecision /= 2;
-                upPrev = true;
-            }
-        }
-        else
-        {
-            upPrev = false;
-        }
-
-        if (Input.GetKey(KeyCode.DownArrow))
-        {
-            if (!downPrev)
-            {
-                GlobalData.beatPrecision *= 2;
-                downPrev = true;
-            }
-        }
-        else
-        {
-            downPrev = false;
-        }
-
-        if (Input.GetKey(KeyCode.LeftArrow))
-        {
-            if (!leftPrev)
-            {
-                GlobalData.currentBeat -= GlobalData.beatPrecision;
-                leftPrev = true;
-            }
-        }
-        else
-        {
-            leftPrev = false;
-        }
-
-        if (Input.GetKey(KeyCode.RightArrow))
-        {
-            if (!rightPrev)
-            {
-                GlobalData.currentBeat += GlobalData.beatPrecision;
-                rightPrev = true;
-            }
-        }
-        else
-        {
-            rightPrev = false;
+            MaximumMovementSpeed = NormalSpeed;
         }
 
         return acceleration.normalized * AccelerationMod;
@@ -173,8 +144,8 @@ public class CameraControl : MonoBehaviour
     private void HandleMouseRotation()
     {
         //mouse input
-        var rotationHorizontal = XAxisSensitivity * Input.GetAxis("Mouse X");
-        var rotationVertical = YAxisSensitivity * Input.GetAxis("Mouse Y");
+        var rotationHorizontal = Time.deltaTime * XAxisSensitivity * Input.GetAxis("Mouse X");
+        var rotationVertical = Time.deltaTime * YAxisSensitivity * Input.GetAxis("Mouse Y");
 
         //applying mouse rotation
         // always rotate Y in global world space to avoid gimbal lock
@@ -225,6 +196,129 @@ public class CameraControl : MonoBehaviour
             {
                 _moveSpeed.z -= DecelerationMod * Mathf.Sign(_moveSpeed.z);
             }
+        }
+    }
+
+    private void HandleEditorControls()
+    {
+        // Menu
+        if (Input.GetKey(KeyCode.Escape))
+        {
+            if (!menuPrev)
+            {
+                menuManager.gameObject.SetActive(!menuManager.gameObject.activeSelf);
+                GlobalData.paused = true;
+                menuPrev = true;
+            }
+        }
+        else
+        {
+            menuPrev = false;
+        }
+
+        // Seeking Controls
+        if (Input.GetKey(KeyCode.Space))
+        {
+            if (!pausePrev)
+            {
+                mapManager.resyncAudio();
+                GlobalData.paused = !GlobalData.paused;
+                pausePrev = true;
+            }
+        }
+        else
+        {
+            pausePrev = false;
+        }
+
+        if (Input.GetKey(KeyCode.UpArrow))
+        {
+            upTimer += Time.deltaTime;
+
+            if (upTimer >= repeatStart)
+            {
+                upPrev = false;
+                upTimer = repeatStart - repeatDelay;
+            }
+
+            if (!upPrev)
+            {
+                GlobalData.beatPrecision /= 2;
+                upPrev = true;
+            }
+        }
+        else
+        {
+            upPrev = false;
+            upTimer = 0;
+        }
+
+        if (Input.GetKey(KeyCode.DownArrow))
+        {
+            downTimer += Time.deltaTime;
+
+            if (downTimer >= repeatStart)
+            {
+                downPrev = false;
+                downTimer = repeatStart - repeatDelay;
+            }
+
+            if (!downPrev)
+            {
+                GlobalData.beatPrecision *= 2;
+                downPrev = true;
+            }
+        }
+        else
+        {
+            downPrev = false;
+            downTimer = 0;
+        }
+
+        if (Input.GetKey(KeyCode.LeftArrow))
+        {
+            leftTimer += Time.deltaTime;
+
+            if (leftTimer >= repeatStart)
+            {
+                leftPrev = false;
+                leftTimer = repeatStart - repeatDelay;
+            }
+
+            if (!leftPrev)
+            {
+                GlobalData.currentBeat -= GlobalData.beatPrecision;
+                mapManager.resyncAudio();
+                leftPrev = true;
+            }
+        }
+        else
+        {
+            leftPrev = false;
+            leftTimer = 0;
+        }
+
+        if (Input.GetKey(KeyCode.RightArrow))
+        {
+            rightTimer += Time.deltaTime;
+
+            if (rightTimer >= repeatStart)
+            {
+                rightPrev = false;
+                rightTimer = repeatStart - repeatDelay;
+            }
+
+            if (!rightPrev)
+            {
+                GlobalData.currentBeat += GlobalData.beatPrecision;
+                mapManager.resyncAudio();
+                rightPrev = true;
+            }
+        }
+        else
+        {
+            rightPrev = false;
+            rightTimer = 0;
         }
     }
 }

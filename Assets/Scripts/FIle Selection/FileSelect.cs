@@ -40,7 +40,7 @@ public class FileSelect : MonoBehaviour, IPointerDownHandler {
     private void OnClick() {
         var paths = StandaloneFileBrowser.OpenFilePanel("Title", "", new[] { new ExtensionFilter("Map Data", "dat", "json") }, false);
         if (paths.Length > 0) {
-            input.text = paths[0];
+            input.text = System.IO.Directory.GetParent(paths[0]).FullName;
         }
     }
 #endif

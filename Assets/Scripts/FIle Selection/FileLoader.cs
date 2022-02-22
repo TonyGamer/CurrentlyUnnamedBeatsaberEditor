@@ -13,7 +13,7 @@ public class FileLoader : MonoBehaviour
     public void LoadScene()
     {
         var input = GetComponent<InputField>();
-        if (File.Exists(input.text))
+        if (Directory.Exists(input.text))
         {
             FileAttributes attr = File.GetAttributes(input.text);
             if (attr.HasFlag(FileAttributes.Directory))

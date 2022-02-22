@@ -7,6 +7,9 @@
     public static float beatPrecision;
 
     public static float bpm;
+    public static float audioOffset;
     public static float jumpSpeed;
-    public static float offset;
+    public static float spawnOffset;
+
+    public static float HJD;
 }

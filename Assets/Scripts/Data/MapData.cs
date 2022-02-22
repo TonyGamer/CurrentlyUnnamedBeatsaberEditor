@@ -4,6 +4,7 @@
 public class MapData
 {
     public float _beatsPerMinute;
+    public float _songTimeOffset;
     public string _songFilename;
     public DifficultyBeatmapSet[] _difficultyBeatmapSets;
 }
