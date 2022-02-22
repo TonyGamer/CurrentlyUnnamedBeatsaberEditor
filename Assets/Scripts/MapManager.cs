@@ -43,19 +43,10 @@ public class MapManager : MonoBehaviour
 
         mapData = ImportJson<MapData>(GlobalData.selectedFolder + "/Info.dat");
 
-        DifficultyBeatmap difficultyBeatMap = mapData._difficultyBeatmapSets[0]._difficultyBeatmaps[0];
-        difData = ImportJson<DifData>(GlobalData.selectedFolder + "/" + difficultyBeatMap._beatmapFilename);
-
-        notes = difData._notes;
-
         GlobalData.bpm = mapData._beatsPerMinute;
         GlobalData.audioOffset = mapData._songTimeOffset / 1000f;
-        GlobalData.jumpSpeed = difficultyBeatMap._noteJumpMovementSpeed;
-        GlobalData.spawnOffset = difficultyBeatMap._noteJumpStartBeatOffset;
 
-        GlobalData.HJD = Mathf.Max(0.25f, (4 / Mathf.Pow(2, Mathf.Floor((GlobalData.jumpSpeed / GlobalData.bpm) / .075f))) + GlobalData.spawnOffset);
-
-        Debug.Log(GlobalData.HJD);
+        loadDifficulty(0, 0);
 
         audioSource = GetComponent<AudioSource>();
 
@@ -159,5 +150,17 @@ public class MapManager : MonoBehaviour
     public void resyncAudio()
     {
         audioSource.time = (60 * (GlobalData.currentBeat) / GlobalData.bpm) + GlobalData.audioOffset;
+    }
+
+    public void loadDifficulty(int type, int difficulty)
+    {
+        DifficultyBeatmap difficultyBeatMap = mapData._difficultyBeatmapSets[type]._difficultyBeatmaps[difficulty];
+        difData = ImportJson<DifData>(GlobalData.selectedFolder + "/" + difficultyBeatMap._beatmapFilename);
+
+        notes = difData._notes;
+        GlobalData.jumpSpeed = difficultyBeatMap._noteJumpMovementSpeed;
+        GlobalData.spawnOffset = difficultyBeatMap._noteJumpStartBeatOffset;
+
+        GlobalData.HJD = Mathf.Max(0.25f, (4 / Mathf.Pow(2, Mathf.Floor((GlobalData.jumpSpeed / GlobalData.bpm) / .075f))) + GlobalData.spawnOffset);
     }
 }
