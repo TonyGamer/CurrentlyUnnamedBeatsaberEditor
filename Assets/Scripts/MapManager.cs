@@ -50,11 +50,11 @@ public class MapManager : MonoBehaviour
 
         GlobalData.bpm = mapData._beatsPerMinute;
         GlobalData.audioOffset = mapData._songTimeOffset / 1000f;
-        foreach(DifficultyBeatmapSet mode in mapData._difficultyBeatmapSets)
+        foreach (DifficultyBeatmapSet mode in mapData._difficultyBeatmapSets)
         {
             modes.Add(mode._beatmapCharacteristicName);
             List<string> diffs = new List<string>();
-            foreach(DifficultyBeatmap diff in mode._difficultyBeatmaps)
+            foreach (DifficultyBeatmap diff in mode._difficultyBeatmaps)
             {
                 diffs.Add(diff._difficulty);
             }
@@ -81,13 +81,15 @@ public class MapManager : MonoBehaviour
         if (GlobalData.paused)
         {
             audioSource.Pause();
-        } else if (!audioSource.isPlaying)
+        }
+        else if (!audioSource.isPlaying)
         {
             audioSource.Play();
         }
 
-        if (GlobalData.currentBeat - prevBeat > 0) { // Going forwards
-            while(GlobalData.currentBeat > notes[currentNoteIndex+1]._time - GlobalData.HJD)
+        if (GlobalData.currentBeat - prevBeat > 0)
+        { // Going forwards
+            while (GlobalData.currentBeat > notes[currentNoteIndex + 1]._time - GlobalData.HJD)
             {
                 currentNoteIndex++;
 
@@ -99,7 +101,7 @@ public class MapManager : MonoBehaviour
                 noteSpawner.SpawnNote(notes[currentNoteIndex]);
             }
 
-            while(GlobalData.currentBeat > notes[oldestNoteIndex]._time)
+            while (GlobalData.currentBeat > notes[oldestNoteIndex]._time + 0.5f)
             {
                 oldestNoteIndex++;
 
@@ -108,11 +110,12 @@ public class MapManager : MonoBehaviour
                     break;
                 }
             }
-        } else if(GlobalData.currentBeat - prevBeat < 0) // Going backwards
+        }
+        else if (GlobalData.currentBeat - prevBeat < 0) // Going backwards
         {
             if (oldestNoteIndex > 0)
             {
-                while (GlobalData.currentBeat < notes[oldestNoteIndex - 1]._time)
+                while (GlobalData.currentBeat < notes[oldestNoteIndex - 1]._time + 0.5f)
                 {
                     oldestNoteIndex--;
 
@@ -138,9 +141,7 @@ public class MapManager : MonoBehaviour
     {
         using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip("file:///" + GlobalData.selectedFolder + "/" + mapData._songFilename, AudioType.OGGVORBIS))
         {
-            www.SendWebRequest();
-
-            yield return www;
+            yield return www.SendWebRequest();
 
             if (www.error != null)
             {
@@ -161,7 +162,7 @@ public class MapManager : MonoBehaviour
 
     public void UpdateVolume()
     {
-        volumeDisplay.text = ((int) volume.value).ToString();
+        volumeDisplay.text = ((int)volume.value).ToString();
         audioSource.volume = volume.value / 100f;
     }
 
