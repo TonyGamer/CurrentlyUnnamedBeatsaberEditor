@@ -38,6 +38,7 @@ public class CameraControl : MonoBehaviour
     [Header("References")]
     public MenuManager menuManager;
     public MapManager mapManager;
+    public GameObject crosshair;
 
     private Vector3 _moveSpeed;
 
@@ -67,10 +68,12 @@ public class CameraControl : MonoBehaviour
 
         var acceleration = Vector3.zero;
 
-        if (!menuManager.gameObject.activeSelf)
+        if (!menuManager.gameObject.activeSelf && !Input.GetKey(KeyCode.LeftControl))
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
+
+            crosshair.SetActive(true);
 
             HandleMouseRotation();
             acceleration = HandleCameraAcceleration();
@@ -78,6 +81,8 @@ public class CameraControl : MonoBehaviour
         {
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
+
+            crosshair.SetActive(false);
         }
 
         _moveSpeed += Time.deltaTime * acceleration;

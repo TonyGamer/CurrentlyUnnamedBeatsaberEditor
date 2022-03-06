@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+[RequireComponent(typeof(Collider))]
 public class Note : MonoBehaviour
 {
     [Header("Note Type")]
@@ -11,6 +12,8 @@ public class Note : MonoBehaviour
     public int lineLayer;
     public int cutDirection;
     public int type = 0;
+
+    public bool selected = false;
 
     private bool transparent;
 
@@ -56,6 +59,8 @@ public class Note : MonoBehaviour
             transparent = false;
             SetAlpha(1);
         }
+
+        SetGlow(selected);
     }
 
     public static explicit operator NoteSerial(Note note)
@@ -73,5 +78,12 @@ public class Note : MonoBehaviour
             color.a = alpha;
             material.color = color;
         }
+    }
+
+    private void SetGlow(bool glow)
+    {
+        Material material = gameObject.GetComponent<Renderer>().material;
+
+        material.SetFloat("_commentIfZero_EnableOutlinePass", glow ? 1 : 0);
     }
 }

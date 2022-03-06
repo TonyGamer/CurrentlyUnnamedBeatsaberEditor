@@ -4823,6 +4823,7 @@ GameObject:
   - component: {fileID: 2793947921486056231}
   - component: {fileID: 81891201087635437}
   - component: {fileID: 3526028972026080444}
+  - component: {fileID: -8766164275457593632}
   m_Layer: 0
   m_Name: Note
   m_TagString: Untagged
@@ -4910,4 +4911,18 @@ MonoBehaviour:
   lineLayer: 0
   cutDirection: 0
   type: 0
+  selected: 0
   particle: {fileID: 5395111408191248642}
+--- !u!65 &-8766164275457593632
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1883089503789342264}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.019999998, y: 0.019999996, z: 0.0202}
+  m_Center: {x: 0, y: 0, z: -0.000100001685}

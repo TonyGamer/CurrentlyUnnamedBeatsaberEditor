@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Block
   m_Shader: {fileID: 4800000, guid: 917b37092bae034459c28c00a3a19b54, type: 3}
-  m_ShaderKeywords: DISTORT VIGNETTE_CLASSIC VIGNETTE_MASKED _ALPHAPREMULTIPLY_ON
+  m_ShaderKeywords: VIGNETTE_CLASSIC VIGNETTE_MASKED _ALPHAPREMULTIPLY_ON _GLOSSYREFLECTIONS_OFF
     _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -691,7 +691,7 @@ Material:
     - _EnableAudioLinkDebug: 0
     - _EnableBRDF: 1
     - _EnableClearCoat: 0
-    - _EnableDissolve: 1
+    - _EnableDissolve: 0
     - _EnableDissolveAudioLink: 0
     - _EnableDistortion: 0
     - _EnableDistortionAudioLink: 0
@@ -711,7 +711,7 @@ Material:
     - _EnableMirrorTexture: 0
     - _EnablePathing: 0
     - _EnableRandom: 0
-    - _EnableRimLighting: 0
+    - _EnableRimLighting: 1
     - _EnableSSS: 0
     - _EnableSpecular: 0
     - _EnableSpecular1: 0
@@ -753,9 +753,9 @@ Material:
     - _GlitterBrightness: 3
     - _GlitterCenterSize: 0.08
     - _GlitterColorMapUV: 0
-    - _GlitterContrast: 300
+    - _GlitterContrast: 40
     - _GlitterEnable: 0
-    - _GlitterFrequency: 300
+    - _GlitterFrequency: 1000
     - _GlitterHideInShadow: 0
     - _GlitterHueShift: 0
     - _GlitterHueShiftEnabled: 0
@@ -813,7 +813,7 @@ Material:
     - _LightingUncapped: 0
     - _LightingWrappedNormalization: 0
     - _LightingWrappedWrap: 0
-    - _LineWidth: 0
+    - _LineWidth: 3
     - _LockTooltip: 0
     - _MainAlphaToCoverage: 0
     - _MainBrightness: 0
@@ -875,7 +875,7 @@ Material:
     - _OffsetFactor: 0
     - _OffsetUnits: 0
     - _OutlineCull: 1
-    - _OutlineEmission: 0
+    - _OutlineEmission: 4
     - _OutlineFixedSize: 0
     - _OutlineHueOffset: 0
     - _OutlineHueOffsetSpeed: 0
@@ -886,7 +886,7 @@ Material:
     - _OutlineOffsetFactor: 0
     - _OutlineOffsetUnits: 0
     - _OutlineRimLightBlend: 0
-    - _OutlineShadowStrength: 1
+    - _OutlineShadowStrength: 0
     - _OutlineStencilCompareFunction: 8
     - _OutlineStencilFailOp: 0
     - _OutlineStencilPassOp: 0
@@ -925,7 +925,7 @@ Material:
     - _ParallaxUV: 0
     - _PathTypeB: 0
     - _PathTypeG: 0
-    - _PathTypeR: 0
+    - _PathTypeR: 1
     - _PathingColorMapUV: 0
     - _PathingMapUV: 0
     - _PatreonHelpBox: 0
@@ -947,7 +947,7 @@ Material:
     - _RgbNormalRScale: 0
     - _RgbNormalRUV: 0
     - _RgbNormalsEnabled: 0
-    - _RimBrighten: 0
+    - _RimBrighten: 3
     - _RimEnviroBlur: 0.7
     - _RimEnviroIntensity: 1
     - _RimEnviroMaskUV: 0
@@ -957,14 +957,14 @@ Material:
     - _RimHueShift: 0
     - _RimHueShiftEnabled: 0
     - _RimHueShiftSpeed: 0
-    - _RimLightColorBias: 1
+    - _RimLightColorBias: 0.4
     - _RimLightNormal: 1
     - _RimLightingInvert: 0
     - _RimMaskUV: 0
-    - _RimSharpness: 0.25
-    - _RimStrength: 0
+    - _RimSharpness: 0
+    - _RimStrength: 0.8
     - _RimTexUV: 0
-    - _RimWidth: 0.8
+    - _RimWidth: 0.5
     - _RimWidthNoiseStrength: 0.1
     - _RimWidthNoiseTextureUV: 0
     - _SSSDistortion: 1
@@ -1067,7 +1067,7 @@ Material:
     - _VertexUnwrap: 0
     - _ZTest: 4
     - _ZWrite: 1
-    - _commentIfZero_EnableOutlinePass: 0
+    - _commentIfZero_EnableOutlinePass: 1
     - _glitterFrequencyLinearEmissive: 20
     - footer_discord: 0
     - footer_github: 0
@@ -1077,7 +1077,7 @@ Material:
     - m_ParallaxMap: 0
     - m_Patreon: 0
     - m_PostProcessing: 0
-    - m_Special_Effects: 1
+    - m_Special_Effects: 0
     - m_end_Alpha: 0
     - m_end_BlackLight: 0
     - m_end_Blur: 0
@@ -1187,7 +1187,7 @@ Material:
     - m_end_voronoiRandom: 0
     - m_lightingOptions: 0
     - m_mainOptions: 0
-    - m_outlineOptions: 0
+    - m_outlineOptions: 1
     - m_renderingOptions: 0
     - m_start_Alpha: 0
     - m_start_BlackLight: 0
@@ -1216,7 +1216,7 @@ Material:
     - m_start_GrabPass: 0
     - m_start_Hologram: 0
     - m_start_Iridescence: 0
-    - m_start_Lighting: 1
+    - m_start_Lighting: 0
     - m_start_MainHueShift: 0
     - m_start_MainVertexColors: 0
     - m_start_Matcap2: 0
@@ -1250,12 +1250,12 @@ Material:
     - m_start_blending: 0
     - m_start_blinkingEmissionOptions: 0
     - m_start_blinkingEmissionOptions1: 0
-    - m_start_brdf: 1
+    - m_start_brdf: 0
     - m_start_clearCoat: 0
     - m_start_crossfade: 0
     - m_start_debugOptions: 0
     - m_start_detailShadows: 0
-    - m_start_dissolve: 1
+    - m_start_dissolve: 0
     - m_start_dissolveAudioLink: 0
     - m_start_dissolveHueShift: 0
     - m_start_dissolveMasking: 0
@@ -1287,7 +1287,7 @@ Material:
     - m_start_pointToPoint: 0
     - m_start_reflectionRim: 0
     - m_start_rimHueShift: 0
-    - m_start_rimLightOptions: 0
+    - m_start_rimLightOptions: 1
     - m_start_rimWidthNoise: 0
     - m_start_scrollingEmissionOptions: 0
     - m_start_scrollingEmissionOptions1: 0
@@ -1418,7 +1418,7 @@ Material:
     - _LightingDetailShadowsPan: {r: 0, g: 0, b: 0, a: 0}
     - _LightingShadowColor: {r: 1, g: 1, b: 1, a: 1}
     - _LightingShadowMaskPan: {r: 0, g: 0, b: 0, a: 0}
-    - _LineColor: {r: 1, g: 1, b: 1, a: 1}
+    - _LineColor: {r: 0, g: 1, b: 1, a: 1}
     - _MainColorAdjustTexturePan: {r: 0, g: 0, b: 0, a: 0}
     - _MainFadeTexturePan: {r: 0, g: 0, b: 0, a: 0}
     - _MainTexPan: {r: 0, g: 0, b: 0, a: 0}
