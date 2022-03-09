@@ -4817,7 +4817,7 @@ MonoBehaviour:
   defaultVolume: 50
   volume: {fileID: 1978065764}
   volumeDisplay: {fileID: 375095634}
-  spawner: {fileID: 0}
+  spawner: {fileID: 1309839093}
   modeSelect: {fileID: 390715165}
   diffSelect: {fileID: 532784260}
   mapData:
@@ -4833,7 +4833,7 @@ MonoBehaviour:
     sliders: []
     burstSliders: []
   notes: []
-  selectedFolder: D:\Music\133c5 (Love Love Love You I Love You - Mawntee)
+  selectedFolder: D:\Downloads\Map
 --- !u!4 &1546118956
 Transform:
   m_ObjectHideFlags: 0

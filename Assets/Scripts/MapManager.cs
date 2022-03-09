@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -87,50 +88,68 @@ public class MapManager : MonoBehaviour
             audioSource.Play();
         }
 
-        if (GlobalData.currentBeat - prevBeat > 0)
-        { // Going forwards
-            while (GlobalData.currentBeat > notes[currentNoteIndex + 1].b - GlobalData.HJD)
+        float speed = GlobalData.currentBeat - prevBeat;
+
+        if(speed == 0) { return; }
+
+        bool direction = speed > 0;
+
+        if (direction) { // forwards
+            if(currentNoteIndex + 1 < end)
             {
-                currentNoteIndex++;
-
-                if (currentNoteIndex > end)
+                while (CheckForSpawn(notes[currentNoteIndex + 1].b, true))
                 {
-                    break;
-                }
+                    spawner.SpawnNote(notes[++currentNoteIndex]);
 
-                spawner.SpawnNote(notes[currentNoteIndex]);
-            }
-
-            while (GlobalData.currentBeat > notes[oldestNoteIndex].b + 0.5f)
-            {
-                oldestNoteIndex++;
-
-                if (oldestNoteIndex > end)
-                {
-                    break;
+                    if(currentNoteIndex + 1 > end)
+                    {
+                        break;
+                    }
                 }
             }
-        }
-        else if (GlobalData.currentBeat - prevBeat < 0) // Going backwards
+
+            if(oldestNoteIndex < end)
+            {
+                while(CheckForDespawn(notes[oldestNoteIndex].b, true)){
+                    Debug.Log("Despawning Note");
+                    oldestNoteIndex++;
+
+                    if(oldestNoteIndex > end)
+                    {
+                        break;
+                    }
+                }
+            }
+        } else // backwards
         {
-            if (oldestNoteIndex > 0)
+            if(oldestNoteIndex > 0)
             {
-                while (GlobalData.currentBeat < notes[oldestNoteIndex - 1].b + 0.5f)
+                while (CheckForSpawn(notes[oldestNoteIndex - 1].b, false))
                 {
+                    Debug.Log("Spawning Note");
                     oldestNoteIndex--;
 
                     spawner.SpawnNote(notes[oldestNoteIndex]);
+
+                    if (oldestNoteIndex <= 0)
+                    {
+                        break;
+                    }
                 }
             }
 
-            while (GlobalData.currentBeat < notes[currentNoteIndex].b - GlobalData.HJD)
+            if(currentNoteIndex >= 0)
             {
-                if (currentNoteIndex <= 0)
+                while(CheckForDespawn(notes[currentNoteIndex].b, false))
                 {
-                    break;
-                }
+                    Debug.Log("Despawning Note");
+                    currentNoteIndex--;
 
-                currentNoteIndex--;
+                    if(currentNoteIndex < 0)
+                    {
+                        break;
+                    }
+                }
             }
         }
 
@@ -196,5 +215,39 @@ public class MapManager : MonoBehaviour
     {
         diffSelect.ClearOptions();
         diffSelect.AddOptions(diffsList[modeSelect.value]);
+    }
+
+    public bool CheckForSpawn(float beat, bool forwards)
+    {
+        if (forwards)
+        {
+            if (GlobalData.currentBeat >= beat - GlobalData.HJD)
+            {
+                return true;
+            }
+        }
+        else if (GlobalData.currentBeat <= beat + 0.5f)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool CheckForDespawn(float beat, bool forwards)
+    {
+        if (forwards)
+        {
+            if (GlobalData.currentBeat > beat + 0.5f)
+            {
+                return true;
+            }
+        }
+        else if (GlobalData.currentBeat < beat - GlobalData.HJD)
+        {
+            return true;
+        }
+
+        return false;
     }
 }
