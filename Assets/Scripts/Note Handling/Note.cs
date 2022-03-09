@@ -7,11 +7,12 @@ using UnityEngine;
 public class Note : MonoBehaviour
 {
     [Header("Note Type")]
-    public float time;
-    public int lineIndex;
-    public int lineLayer;
+    public float beat;
+    public int x;
+    public int y;
     public int cutDirection;
-    public int type = 0;
+    public int color = 0;
+    public int angleOffset;
 
     public bool selected = false;
 
@@ -20,13 +21,14 @@ public class Note : MonoBehaviour
     [Header("References")]
     public ParticleSystem particle;
 
-    public Note(float time, int lineIndex, int lineLayer, int cutDirection, int type)
+    public Note(float beat, int x, int y, int cutDirection, int color, int angleOffset)
     {
-        this.time = time;
-        this.lineIndex = lineIndex;
-        this.lineLayer = lineLayer;
+        this.beat = beat;
+        this.x = x;
+        this.y = y;
         this.cutDirection = cutDirection;
-        this.type = type;
+        this.color = color;
+        this.angleOffset = angleOffset;
     }
 
     void Start()
@@ -41,9 +43,9 @@ public class Note : MonoBehaviour
 
     void Update()
     {
-        float beatsTilHit = time - GlobalData.currentBeat;
+        float beatsTilHit = beat - GlobalData.currentBeat;
 
-        transform.position = new Vector3(lineIndex - 1.5f, lineLayer + 0.5f, 0.5f * GlobalData.jumpSpeed * beatsTilHit);
+        transform.position = Spawner.calculatePosition(x, y, beat);
 
         if (beatsTilHit < -0.5f || beatsTilHit > GlobalData.HJD)
         {
@@ -65,7 +67,7 @@ public class Note : MonoBehaviour
 
     public static explicit operator NoteSerial(Note note)
     {
-        return new NoteSerial(note.time, note.lineIndex, note.lineLayer, note.type, note.cutDirection);
+        return new NoteSerial(note.beat, note.x, note.y, note.color, note.cutDirection, note.angleOffset);
     }
 
     private void SetAlpha(float alpha)

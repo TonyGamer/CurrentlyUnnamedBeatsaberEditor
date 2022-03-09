@@ -17,7 +17,7 @@ public class MapManager : MonoBehaviour
     public Text volumeDisplay;
 
     [Header("References")]
-    public NoteSpawner noteSpawner;
+    public Spawner spawner;
     public Dropdown modeSelect;
     public Dropdown diffSelect;
 
@@ -89,7 +89,7 @@ public class MapManager : MonoBehaviour
 
         if (GlobalData.currentBeat - prevBeat > 0)
         { // Going forwards
-            while (GlobalData.currentBeat > notes[currentNoteIndex + 1]._time - GlobalData.HJD)
+            while (GlobalData.currentBeat > notes[currentNoteIndex + 1].b - GlobalData.HJD)
             {
                 currentNoteIndex++;
 
@@ -98,10 +98,10 @@ public class MapManager : MonoBehaviour
                     break;
                 }
 
-                noteSpawner.SpawnNote(notes[currentNoteIndex]);
+                spawner.SpawnNote(notes[currentNoteIndex]);
             }
 
-            while (GlobalData.currentBeat > notes[oldestNoteIndex]._time + 0.5f)
+            while (GlobalData.currentBeat > notes[oldestNoteIndex].b + 0.5f)
             {
                 oldestNoteIndex++;
 
@@ -115,15 +115,15 @@ public class MapManager : MonoBehaviour
         {
             if (oldestNoteIndex > 0)
             {
-                while (GlobalData.currentBeat < notes[oldestNoteIndex - 1]._time + 0.5f)
+                while (GlobalData.currentBeat < notes[oldestNoteIndex - 1].b + 0.5f)
                 {
                     oldestNoteIndex--;
 
-                    noteSpawner.SpawnNote(notes[oldestNoteIndex]);
+                    spawner.SpawnNote(notes[oldestNoteIndex]);
                 }
             }
 
-            while (GlobalData.currentBeat < notes[currentNoteIndex]._time - GlobalData.HJD)
+            while (GlobalData.currentBeat < notes[currentNoteIndex].b - GlobalData.HJD)
             {
                 if (currentNoteIndex <= 0)
                 {
@@ -176,7 +176,7 @@ public class MapManager : MonoBehaviour
         DifficultyBeatmap difficultyBeatMap = mapData._difficultyBeatmapSets[type]._difficultyBeatmaps[difficulty];
         difData = ImportJson<DifData>(GlobalData.selectedFolder + "/" + difficultyBeatMap._beatmapFilename);
 
-        notes = difData._notes;
+        notes = difData.colorNotes;
         GlobalData.jumpSpeed = difficultyBeatMap._noteJumpMovementSpeed;
         GlobalData.spawnOffset = difficultyBeatMap._noteJumpStartBeatOffset;
 
@@ -185,7 +185,7 @@ public class MapManager : MonoBehaviour
 
     public void ReloadDifficulty()
     {
-        noteSpawner.ClearNotes();
+        spawner.ClearNotes();
         currentNoteIndex = -1;
         oldestNoteIndex = 0;
         prevBeat = 0;

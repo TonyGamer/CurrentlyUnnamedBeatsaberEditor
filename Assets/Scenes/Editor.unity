@@ -4286,8 +4286,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af1e72bc08fa9e849b1dfc02e94e03ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  note: {fileID: 1883089503789342264, guid: af39d5cd9f5d98b4d9e498ab9b9a5a68, type: 3}
-  dot: {fileID: 7737445382145002341, guid: ad448353d7dc9134285bf6753fd2daea, type: 3}
+  noteObject: {fileID: 1883089503789342264, guid: af39d5cd9f5d98b4d9e498ab9b9a5a68,
+    type: 3}
+  dotObject: {fileID: 7737445382145002341, guid: ad448353d7dc9134285bf6753fd2daea,
+    type: 3}
+  bombObject: {fileID: 2925262212904780338, guid: 490319670dcc0f24c88cbdfb925a3844,
+    type: 3}
 --- !u!4 &1309839094
 Transform:
   m_ObjectHideFlags: 0
@@ -4813,7 +4817,7 @@ MonoBehaviour:
   defaultVolume: 50
   volume: {fileID: 1978065764}
   volumeDisplay: {fileID: 375095634}
-  noteSpawner: {fileID: 1309839093}
+  spawner: {fileID: 0}
   modeSelect: {fileID: 390715165}
   diffSelect: {fileID: 532784260}
   mapData:
@@ -4822,9 +4826,12 @@ MonoBehaviour:
     _songFilename: 
     _difficultyBeatmapSets: []
   difData:
-    _version: 
-    _events: []
-    _notes: []
+    version: 
+    colorNotes: []
+    bombNotes: []
+    obstacles: []
+    sliders: []
+    burstSliders: []
   notes: []
   selectedFolder: D:\Music\133c5 (Love Love Love You I Love You - Mawntee)
 --- !u!4 &1546118956
