@@ -22,11 +22,8 @@ public class Event
 }*/
 
 [Serializable]
-public class NoteSerial
+public class NoteSerial : SpawnableSerial
 {
-    public float b;             // time
-    public int x;               // line index
-    public int y;               // line layer
     public int c;               // type
     public int d;               // cut direction
     public int a;               // NEW: angle offset
@@ -48,12 +45,8 @@ public class NoteSerial
 }
 
 [Serializable]
-public class BombSerial
+public class BombSerial : SpawnableSerial
 {
-    public float b;
-    public int x;
-    public int y;
-
     public BombSerial(float beat, int x, int y)
     {
         this.b = beat;
@@ -69,19 +62,13 @@ public class BombSerial
 }
 
 [Serializable]
-public class ObstacleSerial
+public class ObstacleSerial : SpawnableSerial
 {
-    public float b;
-    public int x;
-    public int y;
 }
 
 [Serializable]
-public class SliderSerial
+public class SliderSerial : SpawnableSerial
 {
-    public float b;
-    public int x;
-    public int y;
     public int c;
     public int d;
     public float tb;
@@ -93,11 +80,8 @@ public class SliderSerial
 }
 
 [Serializable]
-public class BurstSliderSerial
+public class BurstSliderSerial : SpawnableSerial
 {
-    public float b;
-    public int x;
-    public int y;
     public int c;
     public int d;
     public float tb;

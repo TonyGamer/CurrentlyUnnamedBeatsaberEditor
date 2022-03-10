@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
@@ -27,10 +28,10 @@ public class MapManager : MonoBehaviour
     [HideInInspector]
     public DifData difData;
     [HideInInspector]
-    public NoteSerial[] notes;
+    public SpawnableSerial[] spawnables;
 
-    private int currentNoteIndex = -1;
-    private int oldestNoteIndex = 0;
+    private int spawnIndex = -1;
+    private int oldestSpawnIndex = 0;
     private float prevBeat;
 
     private AudioSource audioSource;
@@ -77,7 +78,7 @@ public class MapManager : MonoBehaviour
 
     void Update()
     {
-        int end = notes.Length - 1;
+        int end = spawnables.Length - 1;
 
         if (GlobalData.paused)
         {
@@ -95,26 +96,25 @@ public class MapManager : MonoBehaviour
         bool direction = speed > 0;
 
         if (direction) { // forwards
-            if(currentNoteIndex + 1 < end)
+            if(spawnIndex + 1 <= end)
             {
-                while (CheckForSpawn(notes[currentNoteIndex + 1].b, true))
+                while (CheckForSpawn(spawnables[spawnIndex + 1].b, true))
                 {
-                    spawner.SpawnNote(notes[++currentNoteIndex]);
+                    spawner.SpawnSpawnable(spawnables[++spawnIndex]);
 
-                    if(currentNoteIndex + 1 > end)
+                    if(spawnIndex + 1 > end)
                     {
                         break;
                     }
                 }
             }
 
-            if(oldestNoteIndex < end)
+            if(oldestSpawnIndex < end)
             {
-                while(CheckForDespawn(notes[oldestNoteIndex].b, true)){
-                    Debug.Log("Despawning Note");
-                    oldestNoteIndex++;
+                while(CheckForDespawn(spawnables[oldestSpawnIndex].b, true)){
+                    oldestSpawnIndex++;
 
-                    if(oldestNoteIndex > end)
+                    if(oldestSpawnIndex > end)
                     {
                         break;
                     }
@@ -122,30 +122,29 @@ public class MapManager : MonoBehaviour
             }
         } else // backwards
         {
-            if(oldestNoteIndex > 0)
+            if(oldestSpawnIndex > 0)
             {
-                while (CheckForSpawn(notes[oldestNoteIndex - 1].b, false))
+                while (CheckForSpawn(spawnables[oldestSpawnIndex - 1].b, false))
                 {
-                    Debug.Log("Spawning Note");
-                    oldestNoteIndex--;
+                    oldestSpawnIndex--;
 
-                    spawner.SpawnNote(notes[oldestNoteIndex]);
+                    spawner.SpawnSpawnable(spawnables[oldestSpawnIndex]);
 
-                    if (oldestNoteIndex <= 0)
+                    if (oldestSpawnIndex <= 0)
                     {
                         break;
                     }
                 }
             }
 
-            if(currentNoteIndex >= 0)
+            if(spawnIndex >= 0)
             {
-                while(CheckForDespawn(notes[currentNoteIndex].b, false))
+                while(CheckForDespawn(spawnables[spawnIndex].b, false))
                 {
                     Debug.Log("Despawning Note");
-                    currentNoteIndex--;
+                    spawnIndex--;
 
-                    if(currentNoteIndex < 0)
+                    if(spawnIndex < 0)
                     {
                         break;
                     }
@@ -195,7 +194,7 @@ public class MapManager : MonoBehaviour
         DifficultyBeatmap difficultyBeatMap = mapData._difficultyBeatmapSets[type]._difficultyBeatmaps[difficulty];
         difData = ImportJson<DifData>(GlobalData.selectedFolder + "/" + difficultyBeatMap._beatmapFilename);
 
-        notes = difData.colorNotes;
+        spawnables = CreateSpawnablesList(difData);
         GlobalData.jumpSpeed = difficultyBeatMap._noteJumpMovementSpeed;
         GlobalData.spawnOffset = difficultyBeatMap._noteJumpStartBeatOffset;
 
@@ -205,8 +204,8 @@ public class MapManager : MonoBehaviour
     public void ReloadDifficulty()
     {
         spawner.ClearNotes();
-        currentNoteIndex = -1;
-        oldestNoteIndex = 0;
+        spawnIndex = -1;
+        oldestSpawnIndex = 0;
         prevBeat = 0;
         LoadDifficulty(modeSelect.value, diffSelect.value);
     }
@@ -249,5 +248,20 @@ public class MapManager : MonoBehaviour
         }
 
         return false;
+    }
+
+    private SpawnableSerial[] CreateSpawnablesList(DifData difData)
+    {
+        List<NoteSerial> notes = difData.colorNotes.ToList<NoteSerial>();
+        List<BombSerial> bombs = difData.bombNotes.ToList<BombSerial>();
+
+        List<SpawnableSerial> spawnables = new List<SpawnableSerial>(notes.Count + bombs.Count);
+        spawnables.AddRange(notes);
+        spawnables.AddRange(bombs);
+
+        SpawnableSerial[] spawnableArray = spawnables.ToArray();
+        Array.Sort(spawnableArray);
+
+        return spawnableArray;
     }
 }

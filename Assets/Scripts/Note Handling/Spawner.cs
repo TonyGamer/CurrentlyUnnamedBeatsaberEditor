@@ -12,6 +12,22 @@ public class Spawner : MonoBehaviour
     private List<GameObject> notes = new List<GameObject>();
     private List<GameObject> bombs = new List<GameObject>();
 
+    public void SpawnSpawnable(SpawnableSerial spawnable)
+    {
+        switch(spawnable.GetType().Name)
+        {
+            case "NoteSerial":
+                SpawnNote(spawnable as NoteSerial);
+                break;
+            case "BombSerial":
+                SpawnBomb(spawnable as BombSerial);
+                break;
+            default:
+                Debug.LogWarning("Unknown type \"" + spawnable.GetType().Name + "\"");
+                break;
+        }
+    }
+
     public void SpawnNote(NoteSerial noteToSpawn)
     {
         SpawnNote(noteToSpawn.x, noteToSpawn.y, noteToSpawn.c, noteToSpawn.d, noteToSpawn.b, noteToSpawn.a);
