@@ -8,14 +8,14 @@ public class EditorController : MonoBehaviour
     public bool snapWhenPaused = true;
     public Toggle snapWhenPausedToggle;
 
-    private Note hitNote;
-    private Note lastHitNote;
+    private Spawnable hitSpawnable;
+    private Spawnable lastHitSpawnable;
 
     void Start()
     {
         GlobalData.paused = true;
         GlobalData.currentBeat = 0;
-        GlobalData.beatPrecision = 1 / 8f;
+        GlobalData.beatPrecision = 1 / 4f;
     }
 
     void Update()
@@ -37,23 +37,23 @@ public class EditorController : MonoBehaviour
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit))
             {
-                hitNote = hit.transform.GetComponent<Note>();
+                hitSpawnable = hit.transform.GetComponent<Spawnable>();
 
-                if(hitNote != null)
+                if(hitSpawnable != null)
                 {
-                    hitNote.selected = !hitNote.selected;
+                    hitSpawnable.selected = !hitSpawnable.selected;
                 }
             } else
             {
-                hitNote = null;
+                hitSpawnable = null;
             }
 
-            if (lastHitNote != null && lastHitNote != hitNote)
+            if (lastHitSpawnable != null && lastHitSpawnable != hitSpawnable)
             {
-                lastHitNote.selected = false;
+                lastHitSpawnable.selected = false;
             }
 
-            lastHitNote = hitNote;
+            lastHitSpawnable = hitSpawnable;
         }
     }
 

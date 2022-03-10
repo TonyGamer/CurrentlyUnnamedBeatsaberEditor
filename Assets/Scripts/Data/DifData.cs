@@ -64,6 +64,24 @@ public class BombSerial : SpawnableSerial
 [Serializable]
 public class ObstacleSerial : SpawnableSerial
 {
+    public int w;
+    public int h;
+    public float d;
+
+    public ObstacleSerial(float beat, int x, int y, int width, int height, float duration)
+    {
+        this.b = beat;
+        this.x = x;
+        this.y = y;
+        this.w = width;
+        this.h = height;
+        this.d = duration;
+    }
+
+    public static explicit operator Obstacle(ObstacleSerial obstacle)
+    {
+        return new Obstacle(obstacle.b, obstacle.x, obstacle.y, obstacle.w, obstacle.h, obstacle.d);
+    }
 }
 
 [Serializable]
@@ -71,12 +89,13 @@ public class SliderSerial : SpawnableSerial
 {
     public int c;
     public int d;
-    public float tb;
-    public int tx;
-    public int ty;
-    public int tc;
-    public int mu;
-    public int m;
+    public float tb; // tail beat
+    public int tx;   // tail x
+    public int ty;   // tail y
+    public int tc;   // tail cut direction
+    public int mu;   // length multiplier
+    public int tmu;  // tail length multiplier
+    public int m;    // mid anchor mode
 }
 
 [Serializable]
@@ -87,6 +106,6 @@ public class BurstSliderSerial : SpawnableSerial
     public float tb;
     public int tx;
     public int ty;
-    public int sc;
-    public float s;
+    public int sc;  // slice count
+    public float s; // squash
 }

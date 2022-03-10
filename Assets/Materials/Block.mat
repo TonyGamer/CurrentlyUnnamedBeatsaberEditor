@@ -536,7 +536,7 @@ Material:
     - _ClippingMaskUV: 0
     - _ColorMask: 15
     - _ContinuousDissolve: 0
-    - _Cull: 2
+    - _Cull: 0
     - _Cutoff: 0
     - _DebugCameraData: 0
     - _DebugEnabled: 0
@@ -1188,7 +1188,7 @@ Material:
     - m_lightingOptions: 0
     - m_mainOptions: 0
     - m_outlineOptions: 1
-    - m_renderingOptions: 0
+    - m_renderingOptions: 1
     - m_start_Alpha: 0
     - m_start_BlackLight: 0
     - m_start_Blur: 0

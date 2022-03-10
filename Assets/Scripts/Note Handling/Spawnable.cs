@@ -19,7 +19,7 @@ public abstract class Spawnable : MonoBehaviour
     {
         float beatsTilHit = beat - GlobalData.currentBeat;
 
-        transform.position = Spawner.calculatePosition(x, y, beat);
+        transform.position = Spawner.CalculatePosition(x, y, beat);
 
         if (beatsTilHit < -0.5f || beatsTilHit > GlobalData.HJD)
         {
@@ -30,7 +30,7 @@ public abstract class Spawnable : MonoBehaviour
             transparent = true;
             SetAlpha(0.3f);
         }
-        else if (beatsTilHit > 0f && transparent)
+        else if (beatsTilHit >= 0f && transparent)
         {
             transparent = false;
             SetAlpha(1);

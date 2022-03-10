@@ -5,7 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(Collider))]
 public class Note : Spawnable
 {
-    [Header("Note Type")]
+    [Header("Note")]
     public int cutDirection;
     public int color = 0;
     public int angleOffset;

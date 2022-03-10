@@ -2782,7 +2782,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 51719b9075df80f4b823c217e54da57e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4292,6 +4292,12 @@ MonoBehaviour:
     type: 3}
   bombObject: {fileID: 2925262212904780338, guid: 490319670dcc0f24c88cbdfb925a3844,
     type: 3}
+  wallObject: {fileID: 8470458356345947022, guid: 5a7e30c11e84bb5429a6af604f000c50,
+    type: 3}
+  railObject: {fileID: 6626869294236595271, guid: 919e9fbdd38f26d46ad487aa1b08b397,
+    type: 3}
+  bsObject: {fileID: 8741029884380150131, guid: ef158e5aae81b6d468b19ee65b64c4eb,
+    type: 3}
 --- !u!4 &1309839094
 Transform:
   m_ObjectHideFlags: 0
@@ -4832,7 +4838,6 @@ MonoBehaviour:
     obstacles: []
     sliders: []
     burstSliders: []
-  notes: []
   selectedFolder: D:\Downloads\Map
 --- !u!4 &1546118956
 Transform:

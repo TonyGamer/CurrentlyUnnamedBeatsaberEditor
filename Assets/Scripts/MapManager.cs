@@ -109,7 +109,7 @@ public class MapManager : MonoBehaviour
                 }
             }
 
-            if(oldestSpawnIndex < end)
+            if(oldestSpawnIndex <= end)
             {
                 while(CheckForDespawn(spawnables[oldestSpawnIndex].b, true)){
                     oldestSpawnIndex++;
@@ -141,7 +141,6 @@ public class MapManager : MonoBehaviour
             {
                 while(CheckForDespawn(spawnables[spawnIndex].b, false))
                 {
-                    Debug.Log("Despawning Note");
                     spawnIndex--;
 
                     if(spawnIndex < 0)
@@ -254,10 +253,16 @@ public class MapManager : MonoBehaviour
     {
         List<NoteSerial> notes = difData.colorNotes.ToList<NoteSerial>();
         List<BombSerial> bombs = difData.bombNotes.ToList<BombSerial>();
+        List<ObstacleSerial> obstacles = difData.obstacles.ToList<ObstacleSerial>();
+        List<SliderSerial> rails = difData.sliders.ToList<SliderSerial>();
+        List<BurstSliderSerial> burstSliders = difData.burstSliders.ToList<BurstSliderSerial>();
 
-        List<SpawnableSerial> spawnables = new List<SpawnableSerial>(notes.Count + bombs.Count);
+        List<SpawnableSerial> spawnables = new List<SpawnableSerial>(notes.Count + bombs.Count + obstacles.Count + rails.Count + burstSliders.Count);
         spawnables.AddRange(notes);
         spawnables.AddRange(bombs);
+        spawnables.AddRange(obstacles);
+        spawnables.AddRange(rails);
+        spawnables.AddRange(burstSliders);
 
         SpawnableSerial[] spawnableArray = spawnables.ToArray();
         Array.Sort(spawnableArray);
