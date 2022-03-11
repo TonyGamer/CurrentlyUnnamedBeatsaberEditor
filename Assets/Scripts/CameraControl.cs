@@ -22,14 +22,25 @@ public class CameraControl : MonoBehaviour
     public float NormalSpeed = 0.03f;
     private float MaximumMovementSpeed = 0;
 
-    [Header("Controls")]
+    [Header("Camera Controls")]
     public KeyCode Forwards = KeyCode.W;
     public KeyCode Backwards = KeyCode.S;
     public KeyCode Left = KeyCode.A;
     public KeyCode Right = KeyCode.D;
-    public KeyCode Up = KeyCode.Q;
-    public KeyCode Down = KeyCode.E;
     public KeyCode Sprint = KeyCode.LeftShift;
+
+    [Header("Editor Controls")]
+    public KeyCode Menu = KeyCode.Escape;
+
+    public KeyCode Pause = KeyCode.Space;
+    public KeyCode SeekBack = KeyCode.LeftArrow;
+    public KeyCode SeekForward = KeyCode.RightArrow;
+    public KeyCode PrecisionUp = KeyCode.UpArrow;
+    public KeyCode PrecisionDown = KeyCode.DownArrow;
+
+    [Header("NoteControls")]
+    public KeyCode RotLeft = KeyCode.Q;
+    public KeyCode RotRight = KeyCode.E;
 
     [Header("Key Repeat")]
     public float repeatStart = 0.5f;
@@ -38,26 +49,35 @@ public class CameraControl : MonoBehaviour
     [Header("References")]
     public MenuManager menuManager;
     public MapManager mapManager;
+    public EditorController editorController;
 
     private Vector3 _moveSpeed;
 
-    // Single click buttons
-    private bool menuPrev = false;
-    private bool pausePrev = false;
-    private bool upPrev = false;
-    private bool downPrev = false;
-    private bool leftPrev = false;
-    private bool rightPrev = false;
+    private Key MenuKey;
 
-    // Button Repeat Timers
-    private float upTimer = 0;
-    private float downTimer = 0;
-    private float leftTimer = 0;
-    private float rightTimer = 0;
+    private Key PauseKey;
+    private Key SeekBackKey;
+    private Key SeekForeKey;
+    private Key PrecUpKey;
+    private Key PrecDownKey;
+
+    private Key RotLeftKey;
+    private Key RotRightKey;
 
     private void Start()
     {
         _moveSpeed = Vector3.zero;
+
+        MenuKey = new Key(Menu);
+
+        PauseKey = new Key(Pause);
+        SeekBackKey = new Key(SeekBack);
+        SeekForeKey = new Key(SeekForward);
+        PrecUpKey = new Key(PrecisionUp);
+        PrecDownKey = new Key(PrecisionDown);
+
+        RotLeftKey = new Key(RotLeft);
+        RotRightKey = new Key(RotRight);
     }
 
     // Update is called once per frame
@@ -74,7 +94,8 @@ public class CameraControl : MonoBehaviour
 
             HandleMouseRotation();
             acceleration = HandleCameraAcceleration();
-        } else
+        }
+        else
         {
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
@@ -117,16 +138,6 @@ public class CameraControl : MonoBehaviour
             acceleration.x += 1;
         }
 
-        if (Input.GetKey(Up))
-        {
-            acceleration.y += 1;
-        }
-
-        if (Input.GetKey(Down))
-        {
-            acceleration.y -= 1;
-        }
-
         if (Input.GetKey(Sprint))
         {
             MaximumMovementSpeed = SprintSpeed;
@@ -143,12 +154,12 @@ public class CameraControl : MonoBehaviour
 
     private void HandleMouseRotation()
     {
-        //mouse input
+        // Mouse input
         var rotationHorizontal = Time.deltaTime * XAxisSensitivity * Input.GetAxis("Mouse X");
         var rotationVertical = Time.deltaTime * YAxisSensitivity * Input.GetAxis("Mouse Y");
 
-        //applying mouse rotation
-        // always rotate Y in global world space to avoid gimbal lock
+        // Applying mouse rotation
+        // Always rotate Y in global world space to avoid gimbal lock
         transform.Rotate(Vector3.up * rotationHorizontal, Space.World);
 
         var rotationY = transform.localEulerAngles.y;
@@ -161,7 +172,7 @@ public class CameraControl : MonoBehaviour
 
     private void HandleDeceleration(Vector3 acceleration)
     {
-        //deceleration functionality
+        // Deceleration functionality
         if (Mathf.Approximately(Mathf.Abs(acceleration.x), 0))
         {
             if (Mathf.Abs(_moveSpeed.x) < DecelerationMod)
@@ -202,123 +213,84 @@ public class CameraControl : MonoBehaviour
     private void HandleEditorControls()
     {
         // Menu
-        if (Input.GetKey(KeyCode.Escape))
-        {
-            if (!menuPrev)
-            {
-                menuManager.gameObject.SetActive(!menuManager.gameObject.activeSelf);
-                GlobalData.paused = true;
-                menuPrev = true;
-            }
-        }
-        else
-        {
-            menuPrev = false;
-        }
+        KeyRepeat(ref MenuKey, ToggleMenu, 0);
 
         // Seeking Controls
-        if (Input.GetKey(KeyCode.Space))
+        KeyRepeat(ref PauseKey, TogglePaused, 0);
+
+        KeyRepeat(ref PrecUpKey, ChangePrecision, -1);
+        KeyRepeat(ref PrecDownKey, ChangePrecision, 1);
+        KeyRepeat(ref SeekBackKey, Seek, (float)-GlobalData.beatPrecision);
+        KeyRepeat(ref SeekForeKey, Seek, (float)GlobalData.beatPrecision);
+
+        KeyRepeat(ref RotLeftKey, RotateCurrent, -1);
+        KeyRepeat(ref RotRightKey, RotateCurrent, 1);
+    }
+
+    public void ToggleMenu(float _)
+    {
+        menuManager.gameObject.SetActive(!menuManager.gameObject.activeSelf);
+    }
+
+    public void TogglePaused(float _)
+    {
+        mapManager.ResyncAudio();
+        GlobalData.paused = !GlobalData.paused;
+    }
+
+    public void ChangePrecision(float amount)
+    {
+        int amt = (int)amount;
+
+        GlobalData.beatPrecision *= Mathf.Pow(2, amount);
+    }
+
+    public void Seek(float amount)
+    {
+        GlobalData.currentBeat += amount;
+        mapManager.ResyncAudio();
+    }
+
+    public void RotateCurrent(float direction)
+    {
+        editorController.RotateCurrent(direction);
+    }
+
+    public void KeyRepeat(ref Key key, Action<float> func, float argument)
+    {
+        if (Input.GetKey(key.code))
         {
-            if (!pausePrev)
+            key.timer += Time.deltaTime;
+
+            if(key.timer >= repeatStart)
             {
-                mapManager.ResyncAudio();
-                GlobalData.paused = !GlobalData.paused;
-                pausePrev = true;
-            }
-        }
-        else
-        {
-            pausePrev = false;
-        }
-
-        if (Input.GetKey(KeyCode.UpArrow))
-        {
-            upTimer += Time.deltaTime;
-
-            if (upTimer >= repeatStart)
-            {
-                upPrev = false;
-                upTimer = repeatStart - repeatDelay;
-            }
-
-            if (!upPrev)
-            {
-                GlobalData.beatPrecision /= 2;
-                upPrev = true;
-            }
-        }
-        else
-        {
-            upPrev = false;
-            upTimer = 0;
-        }
-
-        if (Input.GetKey(KeyCode.DownArrow))
-        {
-            downTimer += Time.deltaTime;
-
-            if (downTimer >= repeatStart)
-            {
-                downPrev = false;
-                downTimer = repeatStart - repeatDelay;
-            }
-
-            if (!downPrev)
-            {
-                GlobalData.beatPrecision *= 2;
-                downPrev = true;
-            }
-        }
-        else
-        {
-            downPrev = false;
-            downTimer = 0;
-        }
-
-        if (Input.GetKey(KeyCode.LeftArrow))
-        {
-            leftTimer += Time.deltaTime;
-
-            if (leftTimer >= repeatStart)
-            {
-                leftPrev = false;
-                leftTimer = repeatStart - repeatDelay;
+                key.prev = false;
+                key.timer = repeatStart - repeatDelay;
             }
 
-            if (!leftPrev)
+            if(!key.prev)
             {
-                GlobalData.currentBeat -= GlobalData.beatPrecision;
-                mapManager.ResyncAudio();
-                leftPrev = true;
+                func(argument);
+                key.prev = true;
             }
-        }
-        else
+        } else
         {
-            leftPrev = false;
-            leftTimer = 0;
-        }
-
-        if (Input.GetKey(KeyCode.RightArrow))
-        {
-            rightTimer += Time.deltaTime;
-
-            if (rightTimer >= repeatStart)
-            {
-                rightPrev = false;
-                rightTimer = repeatStart - repeatDelay;
-            }
-
-            if (!rightPrev)
-            {
-                GlobalData.currentBeat += GlobalData.beatPrecision;
-                mapManager.ResyncAudio();
-                rightPrev = true;
-            }
-        }
-        else
-        {
-            rightPrev = false;
-            rightTimer = 0;
+            key.timer = 0;
+            key.prev = false;
         }
     }
+}
+
+public struct Key
+{
+    public Key(KeyCode keyCode)
+    {
+        this.code = keyCode;
+        this.timer = 0f;
+        this.prev = false;
+    }
+
+    public KeyCode code { get; set; }
+    public float timer { get; set; }
+    public bool prev { get; set; }
 }

@@ -873,7 +873,7 @@ Material:
     - _OcclusionStrength: 1
     - _OffsetFactor: 0
     - _OffsetUnits: 0
-    - _OutlineCull: 1
+    - _OutlineCull: 2
     - _OutlineEmission: 4
     - _OutlineFixedSize: 0
     - _OutlineHueOffset: 0
@@ -881,7 +881,7 @@ Material:
     - _OutlineHueShift: 0
     - _OutlineLit: 1
     - _OutlineMaskUV: 0
-    - _OutlineMode: 0
+    - _OutlineMode: 2
     - _OutlineOffsetFactor: 0
     - _OutlineOffsetUnits: 0
     - _OutlineRimLightBlend: 0
@@ -1186,7 +1186,7 @@ Material:
     - m_end_voronoiRandom: 0
     - m_lightingOptions: 0
     - m_mainOptions: 1
-    - m_outlineOptions: 1
+    - m_outlineOptions: 0
     - m_renderingOptions: 0
     - m_start_Alpha: 0
     - m_start_BlackLight: 0
@@ -1277,7 +1277,7 @@ Material:
     - m_start_matcap2HueShift: 0
     - m_start_matcapHueShift: 0
     - m_start_mirrorOptions: 0
-    - m_start_outlineAdvanced: 0
+    - m_start_outlineAdvanced: 1
     - m_start_panosphereOptions: 0
     - m_start_parallaxAdvanced: 0
     - m_start_parallaxHeightmap: 0

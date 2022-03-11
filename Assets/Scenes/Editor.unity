@@ -361,6 +361,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   snapWhenPaused: 1
   snapWhenPausedToggle: {fileID: 1664801248}
+  hitSpawnable: {fileID: 0}
 --- !u!4 &49988936
 Transform:
   m_ObjectHideFlags: 0
@@ -3271,13 +3272,20 @@ MonoBehaviour:
   Backwards: 115
   Left: 97
   Right: 100
-  Up: 113
-  Down: 101
   Sprint: 304
+  Menu: 27
+  Pause: 32
+  SeekBack: 276
+  SeekForward: 275
+  PrecisionUp: 273
+  PrecisionDown: 274
+  RotLeft: 113
+  RotRight: 101
   repeatStart: 0.5
   repeatDelay: 0.03
   menuManager: {fileID: 1099225099}
   mapManager: {fileID: 1546118955}
+  editorController: {fileID: 49988935}
 --- !u!1 &968167242
 GameObject:
   m_ObjectHideFlags: 0

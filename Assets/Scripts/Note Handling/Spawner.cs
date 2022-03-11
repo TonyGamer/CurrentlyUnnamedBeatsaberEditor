@@ -152,10 +152,10 @@ public class Spawner : MonoBehaviour
         SpawnBurstSlider(bsToSpawn.b, bsToSpawn.x, bsToSpawn.y, bsToSpawn.c, bsToSpawn.d, bsToSpawn.tb, bsToSpawn.tx, bsToSpawn.ty, bsToSpawn.sc, bsToSpawn.s);
     }
 
-    public void SpawnBurstSlider(float beat, int x, int y, int color, int direction, float tailBeat, int tailX, int tailY, int sliceCount, float squash)
+    public void SpawnBurstSlider(float beat, int x, int y, int color, int cutDirection, float tailBeat, int tailX, int tailY, int sliceCount, float squash)
     {
         Vector3 position = CalculatePosition(x, y, beat);
-        Quaternion rotation = CalculateRotation(direction, 0);
+        Quaternion rotation = CalculateRotation(cutDirection, 0);
 
         GameObject spawnedBS = Instantiate(bsObject, position, rotation);
         BurstSlider bsComp = spawnedBS.GetComponent<BurstSlider>();
@@ -166,7 +166,7 @@ public class Spawner : MonoBehaviour
         bsComp.x = x;
         bsComp.y = y;
         bsComp.color = color;
-        bsComp.direction = direction;
+        bsComp.cutDirection = cutDirection;
         bsComp.tailBeat = tailBeat;
         bsComp.tailX = tailX;
         bsComp.tailY = tailY;

@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class BurstSlider : Spawnable
+public class BurstSlider : Colored
 {
-    public int color;
-    public int direction;
     public float tailBeat;
     public int tailX;
     public int tailY;
@@ -25,20 +23,15 @@ public class BurstSlider : Spawnable
 
     void Start()
     {
-        Quaternion rotation = Spawner.CalculateRotation(direction, 0);
-        float angle = -Mathf.Deg2Rad * rotation.eulerAngles.z;
-
-        controlPoints = new Vector3[] {
-            new Vector3(0, 0, 0),
-            new Vector3(Mathf.Sin(angle), Mathf.Cos(angle), 0),
-            new Vector3(tailX - x, tailY - y, 0.5f * GlobalData.jumpSpeed * (tailBeat - beat))
-        };
-
         elements = new GameObject[sliceCount];
 
-        curveCount = (int)controlPoints.Length / 2;
+        for(int i = 0; i < sliceCount; i++)
+        {
+            elements[i] = Instantiate(elementObject, transform);
+            elements[i].GetComponent<Renderer>().material.color = Spawner.GetColor(color);
+        }
 
-        DrawCurve();
+        UpdateRotation();
     }
 
     new public void Update()
@@ -65,6 +58,22 @@ public class BurstSlider : Spawnable
         SetGlow(selected);
     }
 
+    public override void UpdateRotation()
+    {
+        transform.rotation = Spawner.CalculateRotation(cutDirection, 0);
+        float angle = -Mathf.Deg2Rad * transform.rotation.eulerAngles.z;
+
+        controlPoints = new Vector3[] {
+            new Vector3(0, 0, 0),
+            new Vector3(Mathf.Sin(angle), Mathf.Cos(angle), 0),
+            new Vector3(tailX - x, tailY - y, 0.5f * GlobalData.jumpSpeed * (tailBeat - beat))
+        };
+
+        curveCount = (int)controlPoints.Length / 2;
+
+        DrawCurve();
+    }
+
     void DrawCurve()
     {
         for (int j = 0; j < curveCount; j++)
@@ -84,15 +93,9 @@ public class BurstSlider : Spawnable
 
                 rotation *= Quaternion.Euler((Vector3.up + Vector3.forward)*90);
 
-                GameObject spawnedElement = Instantiate(elementObject, pixel +  transform.position, rotation, transform);
-
-                BurstElement elementComp = spawnedElement.GetComponent<BurstElement>();
-                
-                spawnedElement.GetComponent<Renderer>().material.color = Spawner.GetColor(color);
-                
-                elements[(int)i - 1] = spawnedElement;
+                elements[(int)i - 1].transform.position = pixel + transform.position;
+                elements[(int)i - 1].transform.rotation = rotation;
             }
-
         }
     }
 

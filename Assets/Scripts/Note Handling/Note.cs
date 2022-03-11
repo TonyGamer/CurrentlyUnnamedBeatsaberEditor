@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Collider))]
-public class Note : Spawnable
+public class Note : Colored
 {
     [Header("Note")]
-    public int cutDirection;
-    public int color = 0;
     public int angleOffset;
 
     [Header("References")]
@@ -31,6 +29,12 @@ public class Note : Spawnable
 
         var main = particle.main;
         main.startColor = new ParticleSystem.MinMaxGradient(startColor, endColor);
+    }
+
+
+    public override void UpdateRotation()
+    {
+        transform.rotation = Spawner.CalculateRotation(cutDirection, angleOffset);
     }
 
     public static explicit operator NoteSerial(Note note)

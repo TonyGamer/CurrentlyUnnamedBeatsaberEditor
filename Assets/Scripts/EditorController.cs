@@ -6,9 +6,11 @@ using UnityEngine.UI;
 public class EditorController : MonoBehaviour
 {
     public bool snapWhenPaused = true;
+
+    [Header("References")]
     public Toggle snapWhenPausedToggle;
 
-    private Spawnable hitSpawnable;
+    public Spawnable hitSpawnable;
     private Spawnable lastHitSpawnable;
 
     void Start()
@@ -60,5 +62,15 @@ public class EditorController : MonoBehaviour
     public void toggleSnapWhenPaused()
     {
         snapWhenPaused = snapWhenPausedToggle.isOn;
+    }
+
+    public void RotateCurrent(float direction)
+    {
+        if (hitSpawnable.GetType().IsSubclassOf(typeof(Colored)) && hitSpawnable.selected){
+            Colored hitColored = hitSpawnable as Colored;
+            hitColored.cutDirection += (int)direction;
+            hitColored.cutDirection %= 8;
+            hitColored.UpdateRotation();
+        }
     }
 }

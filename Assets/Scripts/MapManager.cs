@@ -183,11 +183,6 @@ public class MapManager : MonoBehaviour
         audioSource.volume = volume.value / 100f;
     }
 
-    public void ResyncAudio()
-    {
-        audioSource.time = (60 * (GlobalData.currentBeat) / GlobalData.bpm) + GlobalData.audioOffset;
-    }
-
     public void LoadDifficulty(int type, int difficulty)
     {
         DifficultyBeatmap difficultyBeatMap = mapData._difficultyBeatmapSets[type]._difficultyBeatmaps[difficulty];
@@ -213,6 +208,11 @@ public class MapManager : MonoBehaviour
     {
         diffSelect.ClearOptions();
         diffSelect.AddOptions(diffsList[modeSelect.value]);
+    }
+
+    public void ResyncAudio()
+    {
+        audioSource.time = (60 * (GlobalData.currentBeat) / GlobalData.bpm) + GlobalData.audioOffset;
     }
 
     public bool CheckForSpawn(float beat, bool forwards)
