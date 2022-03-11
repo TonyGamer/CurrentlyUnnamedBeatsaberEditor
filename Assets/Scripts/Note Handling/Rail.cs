@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+[RequireComponent(typeof(LineRenderer))]
 public class Rail : Spawnable
 {
     public int color;
@@ -19,6 +20,8 @@ public class Rail : Spawnable
     public Vector3[] controlPoints;
     [HideInInspector]
     public LineRenderer lineRenderer;
+    [HideInInspector]
+    public MeshCollider meshCollider;
 
     private int curveCount = 0;
     private int layerOrder = 0;
@@ -39,12 +42,11 @@ public class Rail : Spawnable
             new Vector3(tailX - x, tailY - y, 0.5f * GlobalData.jumpSpeed * (tailBeat - beat))
         };
 
-        if (!lineRenderer)
-        {
-            lineRenderer = GetComponent<LineRenderer>();
-        }
+        lineRenderer = GetComponent<LineRenderer>();
         lineRenderer.sortingLayerID = layerOrder;
         curveCount = (int)controlPoints.Length / 3;
+
+        meshCollider = GetComponent<MeshCollider>();
 
         DrawCurve();
     }
@@ -61,8 +63,11 @@ public class Rail : Spawnable
                 lineRenderer.positionCount = (j * SEGMENT_COUNT) + i;
                 lineRenderer.SetPosition((j * SEGMENT_COUNT) + (i - 1), pixel);
             }
-
         }
+
+        Mesh mesh = new Mesh();
+        lineRenderer.BakeMesh(mesh, false);
+        meshCollider.sharedMesh = mesh;
     }
 
     Vector3 CalculateCubicBezierPoint(float t, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3)

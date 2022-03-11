@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6626869294236595268}
   - component: {fileID: 6626869294236595269}
   - component: {fileID: 6626869294236595270}
+  - component: {fileID: 3093647673614772626}
   m_Layer: 0
   m_Name: Rail
   m_TagString: Untagged
@@ -165,3 +166,17 @@ MonoBehaviour:
   - {x: 4.6e-44, y: 0, z: 4.3081694e-10}
   - {x: 8.5e-43, y: 4.3081783e-10, z: 8.5e-43}
   lineRenderer: {fileID: 6626869294236595269}
+--- !u!64 &3093647673614772626
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6626869294236595271}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 0}

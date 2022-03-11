@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class BurstElement : MonoBehaviour
 {
-    new public void SetAlpha(float alpha)
+    public void SetAlpha(float alpha)
     {
         List<Material> materials = gameObject.GetComponent<Renderer>().materials.ToList();
 
@@ -17,7 +17,7 @@ public class BurstElement : MonoBehaviour
         }
     }
 
-    new public void SetGlow(bool glow)
+    public void SetGlow(bool glow)
     {
         Material material = gameObject.GetComponent<Renderer>().material;
 
