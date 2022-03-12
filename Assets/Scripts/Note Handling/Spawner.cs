@@ -122,7 +122,7 @@ public class Spawner : MonoBehaviour
         SpawnRail(sliderToSpawn.b, sliderToSpawn.x, sliderToSpawn.y, sliderToSpawn.c, sliderToSpawn.d, sliderToSpawn.tb, sliderToSpawn.tx, sliderToSpawn.ty, sliderToSpawn.tc, sliderToSpawn.mu, sliderToSpawn.tmu, sliderToSpawn.m); // Lotta variables to pass in
     }
 
-    public void SpawnRail(float beat, int x, int y, int color, int direction, float tailBeat, int tailX, int tailY, int tailDirection, int lengthMultiplier, int tailLengthMultiplier, int anchor)
+    public void SpawnRail(float beat, int x, int y, int color, int cutDirection, float tailBeat, int tailX, int tailY, int tailDirection, int lengthMultiplier, int tailLengthMultiplier, int anchor)
     {
         Vector3 position = CalculatePosition(x, y, beat);
 
@@ -135,7 +135,7 @@ public class Spawner : MonoBehaviour
         railComp.x = x;
         railComp.y = y;
         railComp.color = color;
-        railComp.direction = direction;
+        railComp.cutDirection = cutDirection;
         railComp.tailBeat = tailBeat;
         railComp.tailX = tailX;
         railComp.tailY = tailY;

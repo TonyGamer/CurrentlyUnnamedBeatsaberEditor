@@ -64,7 +64,7 @@ public class CameraControl : MonoBehaviour
     private Key RotLeftKey;
     private Key RotRightKey;
 
-    private void Start()
+    void Start()
     {
         _moveSpeed = Vector3.zero;
 
@@ -81,7 +81,7 @@ public class CameraControl : MonoBehaviour
     }
 
     // Update is called once per frame
-    private void Update()
+    void Update()
     {
         HandleEditorControls();
 

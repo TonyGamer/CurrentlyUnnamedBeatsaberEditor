@@ -4,11 +4,9 @@ using System.Linq;
 using UnityEngine;
 
 [RequireComponent(typeof(LineRenderer))]
-public class Rail : Spawnable
+public class Rail : Colored, HasEnd
 {
-    public int color;
-    public int direction;
-    public float tailBeat;
+    public float tailBeat { get; set; }
     public int tailX;
     public int tailY;
     public int tailDirection;
@@ -16,52 +14,55 @@ public class Rail : Spawnable
     public int tailLengthMultiplier;
     public int anchor;
 
+    [Header("References")]
+    public GameObject railEndInstance;
+
     [HideInInspector]
     public Vector3[] controlPoints;
     [HideInInspector]
     public LineRenderer lineRenderer;
     [HideInInspector]
     public MeshCollider meshCollider;
+    [HideInInspector]
+    public RailEnd railEnd;
 
-    private int curveCount = 0;
-    private int layerOrder = 0;
-    private int SEGMENT_COUNT = 50;
+    private int curveCount;
+    private int segmentCount;
 
     void Start()
     {
-        Quaternion rotation = Spawner.CalculateRotation(direction, 0);
-        float angle = -Mathf.Deg2Rad * rotation.eulerAngles.z;
+        if (railEnd == null)
+        {
+            railEnd = Instantiate(railEndInstance).GetComponent<RailEnd>();
+        }
 
-        Quaternion tailRotation = Spawner.CalculateRotation(tailDirection, 0);
-        float tailAngle = Mathf.Deg2Rad * tailRotation.eulerAngles.z;
+        railEnd.railStart = this;
 
-        controlPoints = new Vector3[] {
-            new Vector3(0, 0, 0),
-            new Vector3(lengthMultiplier * Mathf.Sin(angle), lengthMultiplier * Mathf.Cos(angle), 0),
-            new Vector3((tailX - x) + (tailLengthMultiplier * 5 * Mathf.Sin(tailAngle)), (tailY - tailY) + (tailLengthMultiplier * 5 * Mathf.Cos(tailAngle)), 0.5f * GlobalData.jumpSpeed * (tailBeat - beat)),
-            new Vector3(tailX - x, tailY - y, 0.5f * GlobalData.jumpSpeed * (tailBeat - beat))
-        };
+        railEnd.x = tailX;
+        railEnd.y = tailY;
+        railEnd.beat = beat;
+        railEnd.posBeat = tailBeat;
+        railEnd.cutDirection = tailDirection;
 
         lineRenderer = GetComponent<LineRenderer>();
-        lineRenderer.sortingLayerID = layerOrder;
-        curveCount = (int)controlPoints.Length / 3;
-
         meshCollider = GetComponent<MeshCollider>();
 
-        DrawCurve();
+        segmentCount = Mathf.Max(30, (int)(10 * Mathf.Abs(tailBeat - beat)));
+
+        UpdateRotation();
     }
 
     void DrawCurve()
     {
         for (int j = 0; j < curveCount; j++)
         {
-            for (int i = 1; i <= SEGMENT_COUNT; i++)
+            for (int i = 1; i <= segmentCount; i++)
             {
-                float t = i / (float)SEGMENT_COUNT;
+                float t = i / (float)segmentCount;
                 int nodeIndex = j * 3;
                 Vector3 pixel = CalculateCubicBezierPoint(t, controlPoints[nodeIndex], controlPoints[nodeIndex + 1], controlPoints[nodeIndex + 2], controlPoints[nodeIndex + 3]);
-                lineRenderer.positionCount = (j * SEGMENT_COUNT) + i;
-                lineRenderer.SetPosition((j * SEGMENT_COUNT) + (i - 1), pixel);
+                lineRenderer.positionCount = (j * segmentCount) + i;
+                lineRenderer.SetPosition((j * segmentCount) + (i - 1), pixel);
             }
         }
 
@@ -103,5 +104,34 @@ public class Rail : Spawnable
         Material material = gameObject.GetComponent<LineRenderer>().material;
 
         material.SetFloat("_commentIfZero_EnableOutlinePass", glow ? 1 : 0);
+    }
+
+    public override void UpdateRotation()
+    {
+        tailDirection = railEnd.cutDirection;
+
+        Quaternion rotation = Spawner.CalculateRotation(cutDirection, 0);
+        float angle = -Mathf.Deg2Rad * rotation.eulerAngles.z;
+
+        Quaternion tailRotation = Spawner.CalculateRotation(tailDirection, 0);
+        float tailAngle = Mathf.Deg2Rad * tailRotation.eulerAngles.z;
+
+        controlPoints = new Vector3[] {
+            new Vector3(0, 0, 0),
+            new Vector3(lengthMultiplier * Mathf.Sin(angle), lengthMultiplier * Mathf.Cos(angle), 0),
+            new Vector3((tailX - x) + (tailLengthMultiplier * 5 * Mathf.Sin(tailAngle)), (tailY - tailY) + (tailLengthMultiplier * 5 * Mathf.Cos(tailAngle)), 0.5f * GlobalData.jumpSpeed * (tailBeat - beat)),
+            new Vector3(tailX - x, tailY - y, 0.5f * GlobalData.jumpSpeed * (tailBeat - beat))
+        };
+
+        curveCount = (int)controlPoints.Length / 3;
+
+        DrawCurve();
+    }
+
+    new public void Moved()
+    {
+        tailX = railEnd.x;
+        tailY = railEnd.y;
+        UpdateRotation();
     }
 }

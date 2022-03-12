@@ -5377,8 +5377,8 @@ GameObject:
   - component: {fileID: 1725597520}
   - component: {fileID: 1725597519}
   - component: {fileID: 1725597518}
-  m_Layer: 0
-  m_Name: Judgement Line
+  m_Layer: 8
+  m_Name: Judgement Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

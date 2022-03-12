@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class BurstSlider : Colored
+public class BurstSlider : Colored, HasEnd
 {
-    public float tailBeat;
+    public float tailBeat { get; set; }
     public int tailX;
     public int tailY;
     public int sliceCount;

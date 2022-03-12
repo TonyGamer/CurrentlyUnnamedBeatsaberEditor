@@ -57,4 +57,9 @@ public abstract class Spawnable : MonoBehaviour
 
         material.SetFloat("_commentIfZero_EnableOutlinePass", glow ? 1 : 0);
     }
+
+    public virtual void Moved()
+    {
+        return;
+    }
 }

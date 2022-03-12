@@ -151,21 +151,24 @@ MonoBehaviour:
   x: 0
   y: 0
   selected: 0
+  cutDirection: 0
   color: 0
-  direction: 0
-  tailBeat: 0
   tailX: 0
   tailY: 0
   tailDirection: 0
   lengthMultiplier: 0
   tailLengthMultiplier: 0
   anchor: 0
+  railEndInstance: {fileID: 8327595025971786037, guid: a722467d188a5964194a98f6b7f9b0b2,
+    type: 3}
   controlPoints:
   - {x: 4.3081694e-10, y: 8.5e-43, z: 0}
   - {x: 0, y: 1.525039e-39, z: 8.49e-43}
   - {x: 4.6e-44, y: 0, z: 4.3081694e-10}
   - {x: 8.5e-43, y: 4.3081783e-10, z: 8.5e-43}
   lineRenderer: {fileID: 6626869294236595269}
+  meshCollider: {fileID: 0}
+  railEnd: {fileID: 0}
 --- !u!64 &3093647673614772626
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -174,7 +177,7 @@ MeshCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6626869294236595271}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 4
   m_Convex: 1
