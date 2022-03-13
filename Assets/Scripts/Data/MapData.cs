@@ -3,6 +3,7 @@
 [Serializable]
 public class MapData
 {
+    public string _version;
     public float _beatsPerMinute;
     public float _songTimeOffset;
     public string _songFilename;

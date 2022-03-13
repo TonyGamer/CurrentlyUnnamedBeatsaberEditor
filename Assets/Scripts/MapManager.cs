@@ -10,6 +10,9 @@ using UnityEngine.Networking;
 [RequireComponent(typeof(AudioSource))]
 public class MapManager : MonoBehaviour
 {
+    [HideInInspector]
+    public bool isMapVaild = false;
+
     [Header("Defaults")]
     [Range(0, 100)]
     public float defaultVolume;
@@ -61,6 +64,13 @@ public class MapManager : MonoBehaviour
 
         mapData = ImportJson<MapData>(GlobalData.selectedFolder + "/Info.dat");
 
+        if(mapData._version != "3.0.0")
+        {
+            timeRemaining.text = "Unsupported map version";
+            isMapVaild = false;
+            return;
+        }
+
         GlobalData.bpm = mapData._beatsPerMinute;
         GlobalData.audioOffset = mapData._songTimeOffset / 1000f;
         foreach (DifficultyBeatmapSet mode in mapData._difficultyBeatmapSets)
@@ -89,6 +99,8 @@ public class MapManager : MonoBehaviour
 
     void Update()
     {
+        if (!isMapVaild) return;
+
         if (!hasAudioLoaded)
         {
             return;
