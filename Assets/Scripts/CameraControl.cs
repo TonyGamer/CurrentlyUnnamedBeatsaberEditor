@@ -31,6 +31,7 @@ public class CameraControl : MonoBehaviour
 
     [Header("Editor Controls")]
     public KeyCode Menu = KeyCode.Escape;
+    public KeyCode Save = KeyCode.S;
 
     public KeyCode Pause = KeyCode.Space;
     public KeyCode SeekBack = KeyCode.LeftArrow;
@@ -225,6 +226,13 @@ public class CameraControl : MonoBehaviour
 
         KeyRepeat(ref RotLeftKey, RotateCurrent, -1);
         KeyRepeat(ref RotRightKey, RotateCurrent, 1);
+
+        if (Input.GetKey(KeyCode.LeftControl))
+        {
+            ChangePrecision(-(int)Input.mouseScrollDelta.y);
+
+            if (Input.GetKeyDown(Save)) mapManager.SaveDiff();
+        }
     }
 
     public void ToggleMenu(float _)

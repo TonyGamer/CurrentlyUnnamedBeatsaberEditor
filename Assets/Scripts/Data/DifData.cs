@@ -96,6 +96,27 @@ public class SliderSerial : SpawnableSerial
     public int mu;   // length multiplier
     public int tmu;  // tail length multiplier
     public int m;    // mid anchor mode
+
+    public SliderSerial(float beat, int x, int y, int color, int cutDirection, float tailBeat, int tailX, int tailY, int tailDirection, int lengthMultiplier, int tailLengthMultiplier, int anchor)
+    {
+        this.b = beat;
+        this.x = x;
+        this.y = y;
+        this.c = color;
+        this.d = cutDirection;
+        this.tb = tailBeat;
+        this.tx = tailX;
+        this.ty = tailY;
+        this.tc = tailDirection;
+        this.mu = lengthMultiplier;
+        this.tmu = tailLengthMultiplier;
+        this.m = anchor;
+    }
+
+    public static explicit operator Rail(SliderSerial sliderSerial)
+    {
+        return new Rail(sliderSerial.b, sliderSerial.x, sliderSerial.y, sliderSerial.c, sliderSerial.d, sliderSerial.tb, sliderSerial.tx, sliderSerial.ty, sliderSerial.tc, sliderSerial.mu, sliderSerial.tmu, sliderSerial.m);
+    }
 }
 
 [Serializable]
@@ -108,4 +129,23 @@ public class BurstSliderSerial : SpawnableSerial
     public int ty;
     public int sc;  // slice count
     public float s; // squash
+
+    public BurstSliderSerial(float beat, int x, int y, int color, int cutDirection, float tailBeat, int tailX, int tailY, int sliceCount, float squash)
+    {
+        this.b = beat;
+        this.x = x;
+        this.y = y;
+        this.c = color;
+        this.d = cutDirection;
+        this.tb = tailBeat;
+        this.tx = tailX;
+        this.ty = tailY;
+        this.sc = sliceCount;
+        this.s = squash;
+    }
+
+    public static explicit operator BurstSlider(BurstSliderSerial bs)
+    {
+        return new BurstSlider(bs.b, bs.x, bs.y, bs.c, bs.d, bs.tb, bs.tx, bs.ty, bs.sc, bs.s);
+    }
 }

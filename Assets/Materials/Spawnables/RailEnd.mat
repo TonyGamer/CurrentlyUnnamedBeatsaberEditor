@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: RailEnd
   m_Shader: {fileID: 4800000, guid: 917b37092bae034459c28c00a3a19b54, type: 3}
-  m_ShaderKeywords: _ALPHAPREMULTIPLY_ON _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A _SUNDISK_SIMPLE
+  m_ShaderKeywords: _ALPHAPREMULTIPLY_ON _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -221,7 +221,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 31e1de2fb4de8a1459f744cc768e1050, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Matcap:
@@ -753,7 +753,7 @@ Material:
     - _GlitterCenterSize: 0.08
     - _GlitterColorMapUV: 0
     - _GlitterContrast: 45
-    - _GlitterEnable: 1
+    - _GlitterEnable: 0
     - _GlitterFrequency: 20
     - _GlitterHideInShadow: 0
     - _GlitterHueShift: 0
@@ -873,7 +873,7 @@ Material:
     - _OcclusionStrength: 1
     - _OffsetFactor: 0
     - _OffsetUnits: 0
-    - _OutlineCull: 2
+    - _OutlineCull: 1
     - _OutlineEmission: 4
     - _OutlineFixedSize: 0
     - _OutlineHueOffset: 0
@@ -881,7 +881,7 @@ Material:
     - _OutlineHueShift: 0
     - _OutlineLit: 1
     - _OutlineMaskUV: 0
-    - _OutlineMode: 2
+    - _OutlineMode: 0
     - _OutlineOffsetFactor: 0
     - _OutlineOffsetUnits: 0
     - _OutlineRimLightBlend: 0
@@ -1076,7 +1076,7 @@ Material:
     - m_ParallaxMap: 0
     - m_Patreon: 0
     - m_PostProcessing: 0
-    - m_Special_Effects: 1
+    - m_Special_Effects: 0
     - m_end_Alpha: 0
     - m_end_BlackLight: 0
     - m_end_Blur: 0
@@ -1185,9 +1185,9 @@ Material:
     - m_end_vertexManipulation: 0
     - m_end_voronoiRandom: 0
     - m_lightingOptions: 0
-    - m_mainOptions: 1
+    - m_mainOptions: 0
     - m_outlineOptions: 0
-    - m_renderingOptions: 0
+    - m_renderingOptions: 1
     - m_start_Alpha: 0
     - m_start_BlackLight: 0
     - m_start_Blur: 0
@@ -1264,7 +1264,7 @@ Material:
     - m_start_emissionOptions: 0
     - m_start_flipBook: 0
     - m_start_flipbookHueShift: 0
-    - m_start_glitter: 1
+    - m_start_glitter: 0
     - m_start_glitterHueShift: 0
     - m_start_glitterRandom: 0
     - m_start_glowInDarkEmissionOptions: 0
@@ -1277,7 +1277,7 @@ Material:
     - m_start_matcap2HueShift: 0
     - m_start_matcapHueShift: 0
     - m_start_mirrorOptions: 0
-    - m_start_outlineAdvanced: 1
+    - m_start_outlineAdvanced: 0
     - m_start_panosphereOptions: 0
     - m_start_parallaxAdvanced: 0
     - m_start_parallaxHeightmap: 0
@@ -1286,13 +1286,13 @@ Material:
     - m_start_pointToPoint: 0
     - m_start_reflectionRim: 0
     - m_start_rimHueShift: 0
-    - m_start_rimLightOptions: 1
+    - m_start_rimLightOptions: 0
     - m_start_rimWidthNoise: 0
     - m_start_scrollingEmissionOptions: 0
     - m_start_scrollingEmissionOptions1: 0
     - m_start_specular: 0
     - m_start_specular1: 0
-    - m_start_subsurface: 1
+    - m_start_subsurface: 0
     - m_start_vertexManipulation: 0
     - m_start_voronoiRandom: 0
     - shader_is_using_thry_editor: 69
@@ -1353,7 +1353,7 @@ Material:
     - _BumpMapPan: {r: 0, g: 0, b: 0, a: 0}
     - _ClearcoatMapPan: {r: 0, g: 0, b: 0, a: 0}
     - _ClippingMaskPan: {r: 0, g: 0, b: 0, a: 0}
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 0}
     - _DecalColor: {r: 1, g: 1, b: 1, a: 1}
     - _DecalColor1: {r: 1, g: 1, b: 1, a: 1}
     - _DecalColor2: {r: 1, g: 1, b: 1, a: 1}

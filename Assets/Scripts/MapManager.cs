@@ -22,13 +22,16 @@ public class MapManager : MonoBehaviour
     public Spawner spawner;
     public Dropdown modeSelect;
     public Dropdown diffSelect;
+    public GameObject warning;
 
-    [HideInInspector]
-    public MapData mapData;
-    [HideInInspector]
-    public DifData difData;
-    [HideInInspector]
-    public SpawnableSerial[] spawnables;
+    private MapData mapData;
+    private DifData difData;
+    private int currentType;
+    private int currentDiff;
+
+    private static SpawnableSerial[] spawnables;
+
+    private static bool hasSpawnablesChanged = false;
 
     private int spawnIndex = -1;
     private int oldestSpawnIndex = 0;
@@ -91,44 +94,47 @@ public class MapManager : MonoBehaviour
 
         float speed = GlobalData.currentBeat - prevBeat;
 
-        if(speed == 0) { return; }
+        if (speed == 0) { return; }
 
         bool direction = speed > 0;
 
-        if (direction) { // forwards
-            if(spawnIndex + 1 <= end)
+        if (direction)
+        { // forwards
+            if (spawnIndex + 1 <= end)
             {
                 while (CheckForSpawn(spawnables[spawnIndex + 1].b, true))
                 {
-                    spawner.SpawnSpawnable(spawnables[++spawnIndex]);
+                    spawnIndex++;
+                    spawner.SpawnSpawnable(spawnables[spawnIndex], spawnIndex);
 
-                    if(spawnIndex + 1 > end)
+                    if (spawnIndex + 1 > end)
                     {
                         break;
                     }
                 }
             }
 
-            if(oldestSpawnIndex <= end)
+            if (oldestSpawnIndex <= end)
             {
-                while(CheckForDespawn(spawnables[oldestSpawnIndex].b, true)){
+                while (CheckForDespawn(spawnables[oldestSpawnIndex].b, true))
+                {
                     oldestSpawnIndex++;
 
-                    if(oldestSpawnIndex > end)
+                    if (oldestSpawnIndex > end)
                     {
                         break;
                     }
                 }
             }
-        } else // backwards
+        }
+        else // backwards
         {
-            if(oldestSpawnIndex > 0)
+            if (oldestSpawnIndex > 0)
             {
                 while (CheckForSpawn(spawnables[oldestSpawnIndex - 1].b, false))
                 {
                     oldestSpawnIndex--;
-
-                    spawner.SpawnSpawnable(spawnables[oldestSpawnIndex]);
+                    spawner.SpawnSpawnable(spawnables[oldestSpawnIndex], oldestSpawnIndex);
 
                     if (oldestSpawnIndex <= 0)
                     {
@@ -137,13 +143,13 @@ public class MapManager : MonoBehaviour
                 }
             }
 
-            if(spawnIndex >= 0)
+            if (spawnIndex >= 0)
             {
-                while(CheckForDespawn(spawnables[spawnIndex].b, false))
+                while (CheckForDespawn(spawnables[spawnIndex].b, false))
                 {
                     spawnIndex--;
 
-                    if(spawnIndex < 0)
+                    if (spawnIndex < 0)
                     {
                         break;
                     }
@@ -174,7 +180,48 @@ public class MapManager : MonoBehaviour
     T ImportJson<T>(string path)
     {
         StreamReader reader = new StreamReader(path);
-        return JsonUtility.FromJson<T>(reader.ReadToEnd());
+        T returnVal = JsonUtility.FromJson<T>(reader.ReadToEnd());
+        reader.Close();
+        return returnVal;
+    }
+
+    void ExportJson<T>(string path, T data)
+    {
+        StreamWriter writer = new StreamWriter(path);
+
+        string jsonData = JsonUtility.ToJson(data);
+
+        jsonData = jsonData.Replace(",", ",\n");
+        jsonData = jsonData.Replace("[", "[\n");
+        jsonData = jsonData.Replace("{", "{\n");
+        jsonData = jsonData.Replace("]", "\n]");
+        jsonData = jsonData.Replace("}", "\n}");
+        jsonData = jsonData.Replace(":", ": ");
+
+        int indentAmt = 0;
+        string prettyJson = "";
+
+        using (StringReader reader = new StringReader(jsonData))
+        {
+            string line;
+            while ((line = reader.ReadLine()) != null)
+            {
+                if (line.Contains("}") || line.Contains("]"))
+                {
+                    indentAmt--;
+                }
+
+                prettyJson += new String(' ', indentAmt * 4) + line + "\n";
+
+                if (line.Contains("{") || line.Contains("["))
+                {
+                    indentAmt++;
+                }
+            }
+        }
+
+        writer.WriteLine(prettyJson);
+        writer.Close();
     }
 
     public void UpdateVolume()
@@ -185,6 +232,9 @@ public class MapManager : MonoBehaviour
 
     public void LoadDifficulty(int type, int difficulty)
     {
+        currentType = type;
+        currentDiff = difficulty;
+
         DifficultyBeatmap difficultyBeatMap = mapData._difficultyBeatmapSets[type]._difficultyBeatmaps[difficulty];
         difData = ImportJson<DifData>(GlobalData.selectedFolder + "/" + difficultyBeatMap._beatmapFilename);
 
@@ -268,5 +318,93 @@ public class MapManager : MonoBehaviour
         Array.Sort(spawnableArray);
 
         return spawnableArray;
+    }
+
+    public static void UpdateSpawnable(Spawnable spawnable)
+    {
+        switch (spawnable.GetType().Name)
+        {
+            case "Note":
+                spawnables[spawnable.index] = (NoteSerial)(spawnable as Note);
+                break;
+            case "Bomb":
+                spawnables[spawnable.index] = (BombSerial)(spawnable as Bomb);
+                break;
+            case "Obstacle":
+                spawnables[spawnable.index] = (ObstacleSerial)(spawnable as Obstacle);
+                break;
+            case "Rail":
+                spawnables[spawnable.index] = (SliderSerial)(spawnable as Rail);
+                break;
+            case "BurstSlider":
+                spawnables[spawnable.index] = (BurstSliderSerial)(spawnable as BurstSlider);
+                break;
+            default:
+                Debug.LogWarning("Unknown type '" + spawnable.GetType().Name + "'");
+                return;
+        }
+
+        hasSpawnablesChanged = true;
+    }
+
+    public void TryReloadDifficulty()
+    {
+        if (hasSpawnablesChanged)
+        {
+            warning.SetActive(true);
+        }
+        else
+        {
+            ReloadDifficulty();
+        }
+    }
+
+    public void ReloadConfirmed()
+    {
+        hasSpawnablesChanged = false;
+        ReloadDifficulty();
+    }
+
+    public void SaveDiff()
+    {
+        List<NoteSerial> notes = new List<NoteSerial>();
+        List<BombSerial> bombs = new List<BombSerial>();
+        List<ObstacleSerial> obstacles = new List<ObstacleSerial>();
+        List<SliderSerial> sliders = new List<SliderSerial>();
+        List<BurstSliderSerial> burstSliders = new List<BurstSliderSerial>();
+
+        foreach (SpawnableSerial spawnable in spawnables)
+        {
+            switch (spawnable.GetType().Name)
+            {
+                case "NoteSerial":
+                    notes.Add(spawnable as NoteSerial);
+                    break;
+                case "BombSerial":
+                    bombs.Add(spawnable as BombSerial);
+                    break;
+                case "ObstacleSerial":
+                    obstacles.Add(spawnable as ObstacleSerial);
+                    break;
+                case "SliderSerial":
+                    sliders.Add(spawnable as SliderSerial);
+                    break;
+                case "BurstSliderSerial":
+                    burstSliders.Add(spawnable as BurstSliderSerial);
+                    break;
+                default:
+                    Debug.LogWarning("Unknown type '" + spawnable.GetType().Name + "'");
+                    return;
+            }
+        }
+
+        difData.colorNotes = notes.ToArray();
+        difData.bombNotes = bombs.ToArray();
+        difData.obstacles = obstacles.ToArray();
+        difData.sliders = sliders.ToArray();
+        difData.burstSliders = burstSliders.ToArray();
+
+        DifficultyBeatmap difficultyBeatMap = mapData._difficultyBeatmapSets[currentType]._difficultyBeatmaps[currentDiff];
+        ExportJson<DifData>(GlobalData.selectedFolder + "/" + difficultyBeatMap._beatmapFilename, difData);
     }
 }

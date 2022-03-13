@@ -7,6 +7,7 @@ using UnityEngine;
 public abstract class Spawnable : MonoBehaviour
 {
     [Header("Spawnable")]
+    public int index;
     public float beat;
     public int x;
     public int y;
@@ -21,7 +22,7 @@ public abstract class Spawnable : MonoBehaviour
 
         transform.position = Spawner.CalculatePosition(x, y, beat);
 
-        if (beatsTilHit < -0.5f || beatsTilHit > GlobalData.HJD)
+        if (!selected && (beatsTilHit < -0.5f || beatsTilHit > GlobalData.HJD))
         {
             UnityEngine.Object.Destroy(this.gameObject);
         }
@@ -37,6 +38,11 @@ public abstract class Spawnable : MonoBehaviour
         }
 
         SetGlow(selected);
+    }
+
+    void OnDestroy()
+    {
+        Spawner.RemoveSpawnable(gameObject);
     }
 
     public void SetAlpha(float alpha)
@@ -60,6 +66,11 @@ public abstract class Spawnable : MonoBehaviour
 
     public virtual void Moved()
     {
-        return;
+        Changed();
+    }
+
+    public virtual void Changed()
+    {
+        MapManager.UpdateSpawnable(this);
     }
 }

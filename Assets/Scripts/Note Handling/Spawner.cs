@@ -12,39 +12,48 @@ public class Spawner : MonoBehaviour
     public GameObject railObject;
     public GameObject bsObject;
 
-    private List<GameObject> spawnables = new List<GameObject>();
+    private static List<GameObject> spawnables = new List<GameObject>();
 
-    public void SpawnSpawnable(SpawnableSerial spawnable)
+    public void SpawnSpawnable(SpawnableSerial spawnable, int index)
     {
+        foreach(GameObject testSpawn in spawnables)
+        {
+            Spawnable spawnComp = testSpawn.GetComponent<Spawnable>();
+            if(spawnComp.index == index)
+            {
+                return;
+            }
+        }
+
         switch(spawnable.GetType().Name)
         {
             case "NoteSerial":
-                SpawnNote(spawnable as NoteSerial);
+                SpawnNote(spawnable as NoteSerial, index);
                 break;
             case "BombSerial":
-                SpawnBomb(spawnable as BombSerial);
+                SpawnBomb(spawnable as BombSerial, index);
                 break;
             case "ObstacleSerial":
-                SpawnObstacle(spawnable as ObstacleSerial);
+                SpawnObstacle(spawnable as ObstacleSerial, index);
                 break;
             case "SliderSerial":
-                SpawnRail(spawnable as SliderSerial);
+                SpawnRail(spawnable as SliderSerial, index);
                 break;
             case "BurstSliderSerial":
-                SpawnBurstSlider(spawnable as BurstSliderSerial);
+                SpawnBurstSlider(spawnable as BurstSliderSerial, index);
                 break;
             default:
-                Debug.LogWarning("Unknown type \"" + spawnable.GetType().Name + "\"");
+                Debug.LogWarning("Unknown type '" + spawnable.GetType().Name + "'");
                 break;
         }
     }
 
-    public void SpawnNote(NoteSerial noteToSpawn)
+    public void SpawnNote(NoteSerial noteToSpawn, int index)
     {
-        SpawnNote(noteToSpawn.x, noteToSpawn.y, noteToSpawn.c, noteToSpawn.d, noteToSpawn.b, noteToSpawn.a);
+        SpawnNote(index, noteToSpawn.x, noteToSpawn.y, noteToSpawn.c, noteToSpawn.d, noteToSpawn.b, noteToSpawn.a);
     }
 
-    public void SpawnNote(int x, int y, int color, int cutDirection, float beat, int angleOffset)
+    public void SpawnNote(int index, int x, int y, int color, int cutDirection, float beat, int angleOffset)
     {
         GameObject noteMesh = noteObject;
         Vector3 position = CalculatePosition(x, y, beat);
@@ -60,22 +69,22 @@ public class Spawner : MonoBehaviour
 
         spawnedNote.GetComponent<Renderer>().material.color = GetColor(color);
 
+        noteComp.index = index;
         noteComp.beat = beat;
         noteComp.x = x;
         noteComp.y = y;
         noteComp.cutDirection = cutDirection;
-
         noteComp.color = color;
 
         spawnables.Add(spawnedNote);
     }
 
-    public void SpawnBomb(BombSerial bombToSpawn)
+    public void SpawnBomb(BombSerial bombToSpawn, int index)
     {
-        SpawnBomb(bombToSpawn.b, bombToSpawn.x, bombToSpawn.y);
+        SpawnBomb(index, bombToSpawn.b, bombToSpawn.x, bombToSpawn.y);
     }
 
-    public void SpawnBomb(float beat, int x, int y)
+    public void SpawnBomb(int index, float beat, int x, int y)
     {
         Vector3 position = CalculatePosition(x, y, beat);
         Quaternion rotation = Quaternion.identity;
@@ -83,6 +92,7 @@ public class Spawner : MonoBehaviour
         GameObject spawnedBomb = Instantiate(bombObject, position, rotation);
         Bomb bombComp = spawnedBomb.GetComponent<Bomb>();
 
+        bombComp.index = index;
         bombComp.beat = beat;
         bombComp.x = x;
         bombComp.y = y;
@@ -90,12 +100,12 @@ public class Spawner : MonoBehaviour
         spawnables.Add(spawnedBomb);
     }
 
-    public void SpawnObstacle(ObstacleSerial obstacleToSpawn)
+    public void SpawnObstacle(ObstacleSerial obstacleToSpawn, int index)
     {
-        SpawnObstacle(obstacleToSpawn.b, obstacleToSpawn.x, obstacleToSpawn.y, obstacleToSpawn.w, obstacleToSpawn.h, obstacleToSpawn.d);
+        SpawnObstacle(index, obstacleToSpawn.b, obstacleToSpawn.x, obstacleToSpawn.y, obstacleToSpawn.w, obstacleToSpawn.h, obstacleToSpawn.d);
     }
 
-    public void SpawnObstacle(float beat, int x, int y, int width, int height, float duration)
+    public void SpawnObstacle(int index, float beat, int x, int y, int width, int height, float duration)
     {
         Vector3 position = CalculatePosition(x + width - 1, y + height - 1, beat);
         float depth = 0.5f * duration * GlobalData.jumpSpeed;
@@ -107,6 +117,7 @@ public class Spawner : MonoBehaviour
 
         Obstacle obstacleComp = spawnedObstacle.GetComponent<Obstacle>();
 
+        obstacleComp.index = index;
         obstacleComp.beat = beat;
         obstacleComp.x = x;
         obstacleComp.y = y;
@@ -117,12 +128,12 @@ public class Spawner : MonoBehaviour
         spawnables.Add(spawnedObstacle);
     }
 
-    public void SpawnRail(SliderSerial sliderToSpawn)
+    public void SpawnRail(SliderSerial sliderToSpawn, int index)
     {
-        SpawnRail(sliderToSpawn.b, sliderToSpawn.x, sliderToSpawn.y, sliderToSpawn.c, sliderToSpawn.d, sliderToSpawn.tb, sliderToSpawn.tx, sliderToSpawn.ty, sliderToSpawn.tc, sliderToSpawn.mu, sliderToSpawn.tmu, sliderToSpawn.m); // Lotta variables to pass in
+        SpawnRail(index, sliderToSpawn.b, sliderToSpawn.x, sliderToSpawn.y, sliderToSpawn.c, sliderToSpawn.d, sliderToSpawn.tb, sliderToSpawn.tx, sliderToSpawn.ty, sliderToSpawn.tc, sliderToSpawn.mu, sliderToSpawn.tmu, sliderToSpawn.m); // Lotta variables to pass in
     }
 
-    public void SpawnRail(float beat, int x, int y, int color, int cutDirection, float tailBeat, int tailX, int tailY, int tailDirection, int lengthMultiplier, int tailLengthMultiplier, int anchor)
+    public void SpawnRail(int index, float beat, int x, int y, int color, int cutDirection, float tailBeat, int tailX, int tailY, int tailDirection, int lengthMultiplier, int tailLengthMultiplier, int anchor)
     {
         Vector3 position = CalculatePosition(x, y, beat);
 
@@ -131,6 +142,7 @@ public class Spawner : MonoBehaviour
 
         spawnedRail.GetComponent<LineRenderer>().material.color = GetColor(color);
 
+        railComp.index = index;
         railComp.beat = beat;
         railComp.x = x;
         railComp.y = y;
@@ -147,12 +159,12 @@ public class Spawner : MonoBehaviour
         spawnables.Add(spawnedRail);
     }
 
-    public void SpawnBurstSlider(BurstSliderSerial bsToSpawn)
+    public void SpawnBurstSlider(BurstSliderSerial bsToSpawn, int index)
     {
-        SpawnBurstSlider(bsToSpawn.b, bsToSpawn.x, bsToSpawn.y, bsToSpawn.c, bsToSpawn.d, bsToSpawn.tb, bsToSpawn.tx, bsToSpawn.ty, bsToSpawn.sc, bsToSpawn.s);
+        SpawnBurstSlider(index, bsToSpawn.b, bsToSpawn.x, bsToSpawn.y, bsToSpawn.c, bsToSpawn.d, bsToSpawn.tb, bsToSpawn.tx, bsToSpawn.ty, bsToSpawn.sc, bsToSpawn.s);
     }
 
-    public void SpawnBurstSlider(float beat, int x, int y, int color, int cutDirection, float tailBeat, int tailX, int tailY, int sliceCount, float squash)
+    public void SpawnBurstSlider(int index, float beat, int x, int y, int color, int cutDirection, float tailBeat, int tailX, int tailY, int sliceCount, float squash)
     {
         Vector3 position = CalculatePosition(x, y, beat);
         Quaternion rotation = CalculateRotation(cutDirection, 0);
@@ -162,6 +174,7 @@ public class Spawner : MonoBehaviour
 
         spawnedBS.GetComponent<Renderer>().material.color = GetColor(color);
 
+        bsComp.index = index;
         bsComp.beat = beat;
         bsComp.x = x;
         bsComp.y = y;
@@ -245,5 +258,10 @@ public class Spawner : MonoBehaviour
             default:
                 return Color.magenta; // Fallback to pink if color is unexpected
         }
+    }
+
+    public static void RemoveSpawnable(GameObject spawnable)
+    {
+        spawnables.Remove(spawnable);
     }
 }

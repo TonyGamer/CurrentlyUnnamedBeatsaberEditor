@@ -29,6 +29,22 @@ public class Rail : Colored, HasEnd
     private int curveCount;
     private int segmentCount;
 
+    public Rail(float beat, int x, int y, int color, int cutDirection, float tailBeat, int tailX, int tailY, int tailDirection, int lengthMultiplier, int tailLengthMultiplier, int anchor)
+    {
+        this.beat = beat;
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.cutDirection = cutDirection;
+        this.tailBeat = tailBeat;
+        this.tailX = tailX;
+        this.tailY = tailY;
+        this.tailDirection = tailDirection;
+        this.lengthMultiplier = lengthMultiplier;
+        this.tailLengthMultiplier = tailLengthMultiplier;
+        this.anchor = anchor;
+    }
+
     void Start()
     {
         if (railEnd == null)
@@ -101,6 +117,8 @@ public class Rail : Colored, HasEnd
 
     new public void SetGlow(bool glow)
     {
+        railEnd.selected = glow;
+
         Material material = gameObject.GetComponent<LineRenderer>().material;
 
         material.SetFloat("_commentIfZero_EnableOutlinePass", glow ? 1 : 0);
@@ -118,14 +136,16 @@ public class Rail : Colored, HasEnd
 
         controlPoints = new Vector3[] {
             new Vector3(0, 0, 0),
-            new Vector3(lengthMultiplier * Mathf.Sin(angle), lengthMultiplier * Mathf.Cos(angle), 0),
-            new Vector3((tailX - x) + (tailLengthMultiplier * 5 * Mathf.Sin(tailAngle)), (tailY - tailY) + (tailLengthMultiplier * 5 * Mathf.Cos(tailAngle)), 0.5f * GlobalData.jumpSpeed * (tailBeat - beat)),
+            new Vector3(lengthMultiplier * 3 * Mathf.Sin(angle), lengthMultiplier * 3 * Mathf.Cos(angle), 0),
+            new Vector3((tailX - x) + (tailLengthMultiplier * 3 * Mathf.Sin(tailAngle)), (tailY - y) - (tailLengthMultiplier * 3 * Mathf.Cos(tailAngle)), 0.5f * GlobalData.jumpSpeed * (tailBeat - beat)),
             new Vector3(tailX - x, tailY - y, 0.5f * GlobalData.jumpSpeed * (tailBeat - beat))
         };
 
         curveCount = (int)controlPoints.Length / 3;
 
         DrawCurve();
+
+        Changed();
     }
 
     new public void Moved()
@@ -133,5 +153,10 @@ public class Rail : Colored, HasEnd
         tailX = railEnd.x;
         tailY = railEnd.y;
         UpdateRotation();
+    }
+
+    public static explicit operator SliderSerial(Rail rail)
+    {
+        return new SliderSerial(rail.beat, rail.x, rail.y, rail.color, rail.cutDirection, rail.tailBeat, rail.tailX, rail.tailY, rail.tailDirection, rail.lengthMultiplier, rail.tailLengthMultiplier, rail.anchor);
     }
 }

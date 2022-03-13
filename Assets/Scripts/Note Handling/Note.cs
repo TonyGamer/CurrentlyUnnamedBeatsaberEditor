@@ -35,6 +35,7 @@ public class Note : Colored
     public override void UpdateRotation()
     {
         transform.rotation = Spawner.CalculateRotation(cutDirection, angleOffset);
+        Changed();
     }
 
     public static explicit operator NoteSerial(Note note)

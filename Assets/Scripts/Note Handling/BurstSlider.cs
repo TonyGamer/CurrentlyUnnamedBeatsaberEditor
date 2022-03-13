@@ -21,6 +21,20 @@ public class BurstSlider : Colored, HasEnd
 
     private int curveCount = 0;
 
+    public BurstSlider(float beat, int x, int y, int color, int cutDirection, float tailBeat, int tailX, int tailY, int sliceCount, float squash)
+    {
+        this.beat = beat;
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.cutDirection = cutDirection;
+        this.tailBeat = tailBeat;
+        this.tailX = tailX;
+        this.tailY = tailY;
+        this.sliceCount = sliceCount;
+        this.squash = squash;
+    }
+
     void Start()
     {
         elements = new GameObject[sliceCount];
@@ -72,6 +86,8 @@ public class BurstSlider : Colored, HasEnd
         curveCount = (int)controlPoints.Length / 2;
 
         DrawCurve();
+
+        Changed();
     }
 
     void DrawCurve()
@@ -136,5 +152,10 @@ public class BurstSlider : Colored, HasEnd
         Material material = gameObject.GetComponent<Renderer>().material;
 
         material.SetFloat("_commentIfZero_EnableOutlinePass", glow ? 1 : 0);
+    }
+
+    public static explicit operator BurstSliderSerial(BurstSlider bs)
+    {
+        return new BurstSliderSerial(bs.beat, bs.x, bs.y, bs.color, bs.cutDirection, bs.tailBeat, bs.tailX, bs.tailY, bs.sliceCount, bs.squash);
     }
 }
