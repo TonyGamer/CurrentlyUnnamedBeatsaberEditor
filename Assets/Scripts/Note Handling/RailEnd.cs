@@ -8,6 +8,8 @@ public class RailEnd : Colored
 {
     public float posBeat;
 
+    private float prevBeat;
+
     [HideInInspector]
     public Rail railStart;
 
@@ -28,10 +30,14 @@ public class RailEnd : Colored
         }
 
         SetGlow(selected);
+
+        prevBeat = beat;
     }
 
     public override void Moved()
     {
+        posBeat += prevBeat - beat;
+        beat = prevBeat;
         railStart.Moved();
     }
 

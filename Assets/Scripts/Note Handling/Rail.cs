@@ -136,8 +136,8 @@ public class Rail : Colored, HasEnd
 
         controlPoints = new Vector3[] {
             new Vector3(0, 0, 0),
-            new Vector3(lengthMultiplier * 3 * Mathf.Sin(angle), lengthMultiplier * 3 * Mathf.Cos(angle), 0),
-            new Vector3((tailX - x) + (tailLengthMultiplier * 3 * Mathf.Sin(tailAngle)), (tailY - y) - (tailLengthMultiplier * 3 * Mathf.Cos(tailAngle)), 0.5f * GlobalData.jumpSpeed * (tailBeat - beat)),
+            new Vector3(lengthMultiplier * 2 * Mathf.Sin(angle), lengthMultiplier * 2 * Mathf.Cos(angle), 0),
+            new Vector3((tailX - x) + (tailLengthMultiplier * 2 * Mathf.Sin(tailAngle)), (tailY - y) - (tailLengthMultiplier * 2 * Mathf.Cos(tailAngle)), 0.5f * GlobalData.jumpSpeed * (tailBeat - beat)),
             new Vector3(tailX - x, tailY - y, 0.5f * GlobalData.jumpSpeed * (tailBeat - beat))
         };
 
@@ -148,10 +148,11 @@ public class Rail : Colored, HasEnd
         Changed();
     }
 
-    new public void Moved()
+    public override void Moved()
     {
         tailX = railEnd.x;
         tailY = railEnd.y;
+        tailBeat = railEnd.posBeat;
         UpdateRotation();
     }
 

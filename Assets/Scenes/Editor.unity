@@ -3702,6 +3702,7 @@ MonoBehaviour:
   Right: 100
   Sprint: 304
   Menu: 27
+  Save: 115
   Pause: 32
   SeekBack: 276
   SeekForward: 275
@@ -6333,7 +6334,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2016869737
 RectTransform:
   m_ObjectHideFlags: 0

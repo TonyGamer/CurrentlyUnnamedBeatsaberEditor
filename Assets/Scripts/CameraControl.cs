@@ -219,19 +219,25 @@ public class CameraControl : MonoBehaviour
         // Seeking Controls
         KeyRepeat(ref PauseKey, TogglePaused, 0);
 
-        KeyRepeat(ref PrecUpKey, ChangePrecision, -1);
-        KeyRepeat(ref PrecDownKey, ChangePrecision, 1);
-        KeyRepeat(ref SeekBackKey, Seek, (float)-GlobalData.beatPrecision);
-        KeyRepeat(ref SeekForeKey, Seek, (float)GlobalData.beatPrecision);
-
-        KeyRepeat(ref RotLeftKey, RotateCurrent, -1);
-        KeyRepeat(ref RotRightKey, RotateCurrent, 1);
-
         if (Input.GetKey(KeyCode.LeftControl))
         {
             ChangePrecision(-(int)Input.mouseScrollDelta.y);
 
             if (Input.GetKeyDown(Save)) mapManager.SaveDiff();
+        }
+        else if (Input.GetKey(KeyCode.LeftAlt))
+        {
+            editorController.ChangeBeat((int)Input.mouseScrollDelta.y);
+        }
+        else
+        {
+            KeyRepeat(ref PrecUpKey, ChangePrecision, -1);
+            KeyRepeat(ref PrecDownKey, ChangePrecision, 1);
+            KeyRepeat(ref SeekBackKey, Seek, (float)-GlobalData.beatPrecision);
+            KeyRepeat(ref SeekForeKey, Seek, (float)GlobalData.beatPrecision);
+
+            KeyRepeat(ref RotLeftKey, RotateCurrent, -1);
+            KeyRepeat(ref RotRightKey, RotateCurrent, 1);
         }
     }
 
@@ -270,18 +276,19 @@ public class CameraControl : MonoBehaviour
         {
             key.timer += Time.deltaTime;
 
-            if(key.timer >= repeatStart)
+            if (key.timer >= repeatStart)
             {
                 key.prev = false;
                 key.timer = repeatStart - repeatDelay;
             }
 
-            if(!key.prev)
+            if (!key.prev)
             {
                 func(argument);
                 key.prev = true;
             }
-        } else
+        }
+        else
         {
             key.timer = 0;
             key.prev = false;

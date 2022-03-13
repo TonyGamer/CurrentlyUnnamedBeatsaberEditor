@@ -88,8 +88,7 @@ public class EditorController : MonoBehaviour
         if (hitSpawnable.GetType().IsSubclassOf(typeof(Colored)) && hitSpawnable.selected)
         {
             Colored hitColored = hitSpawnable as Colored;
-            hitColored.cutDirection += (int)direction;
-            hitColored.cutDirection %= 8;
+            hitColored.cutDirection = (((hitColored.cutDirection + (int)direction) % 8) + 8) % 8;
             hitColored.UpdateRotation();
         }
     }
@@ -102,7 +101,8 @@ public class EditorController : MonoBehaviour
 
     public void ChangeBeat(int beat)
     {
-        hitSpawnable.beat += beat;
+        hitSpawnable.beat += beat * GlobalData.beatPrecision;
+        hitSpawnable.Moved();
     }
 
     private Vector3 GetPlaneIntersect()
