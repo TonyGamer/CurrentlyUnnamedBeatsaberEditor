@@ -1,13 +1,17 @@
 # !! THIS IS A WORK IN PROGRESS !!
 
 ## What is this?
-The plan is for this to eventually become a fully fledged BeatSaber map editor which is capable of editing both vanilla maps *and* modded maps well. Initially it will only be a map viewer, then a vanilla map editor, and finally a modded map editor. Once that is complete I will begin adding small quality of life features and tools to speed up the mapping process for both modded and vanilla maps.
+This project called Currently Unnamed Beatsaber Editor, or CUBE editor for short, will eventually become a fully fledged BeatSaber map editor which is capable of editing both vanilla maps *and* modded maps well. For now it only supports official features.
+Initially it will only be a map viewer, then a vanilla map editor, and finally a modded map editor. Once that is complete I will begin adding small quality of life features and tools to speed up the mapping process for both modded and vanilla maps.
 
 ## Features
-- Playing a difficulty from an unzipped map
+- Playing a difficulty from an unzipped map using the 3.0 map format
+    - This means that the new sliders and burst sliders are supported
 - Audio syncing
 - Play/Pause
 - Seeking
+- Rotating and moving pre-existing elements
+- Saving
 
 ## What mods are planned to be supported?
 - Noodle Extensions
