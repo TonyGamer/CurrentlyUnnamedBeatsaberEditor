@@ -67,6 +67,24 @@ public class EditorController : MonoBehaviour
             else
             {
                 hitSpawnable = null;
+
+                Vector3 spawnPosition = GetPlaneIntersect();
+
+                switch (spawnableToPlace)
+                {
+                    case (SpawnableToPlace.Red):
+                        break;
+                    case (SpawnableToPlace.Blue):
+                        break;
+                    case (SpawnableToPlace.Bomb):
+                        break;
+                    case (SpawnableToPlace.Wall):
+                        break;
+                    case (SpawnableToPlace.Stack):
+                        break;
+                    case (SpawnableToPlace.Rail):
+                        break;
+                }
             }
 
             if (lastHitSpawnable != null && lastHitSpawnable != hitSpawnable)
@@ -90,7 +108,7 @@ public class EditorController : MonoBehaviour
         }
     }
 
-    public void toggleSnapWhenPaused()
+    public void ToggleSnapWhenPaused()
     {
         snapWhenPaused = snapWhenPausedToggle.isOn;
     }

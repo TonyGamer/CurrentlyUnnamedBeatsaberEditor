@@ -316,6 +316,10 @@ public class CameraControl : MonoBehaviour
 
     public void Seek(float amount)
     {
+        if(amount == 0)
+        {
+            return;
+        }
         GlobalData.currentBeat += amount * GlobalData.beatPrecision;
         mapManager.ResyncAudio();
     }

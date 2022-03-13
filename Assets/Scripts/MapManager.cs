@@ -23,6 +23,7 @@ public class MapManager : MonoBehaviour
     public Dropdown modeSelect;
     public Dropdown diffSelect;
     public GameObject warning;
+    public Slider progressBar;
 
     private MapData mapData;
     private DifData difData;
@@ -38,6 +39,8 @@ public class MapManager : MonoBehaviour
     private float prevBeat;
 
     private AudioSource audioSource;
+
+    private float lastSetValue;
 
     [Header("Debugging")]
     public string selectedFolder;
@@ -83,7 +86,7 @@ public class MapManager : MonoBehaviour
     {
         int end = spawnables.Length - 1;
 
-        if (GlobalData.paused)
+        if (GlobalData.paused && audioSource.isPlaying)
         {
             audioSource.Pause();
         }
@@ -155,6 +158,18 @@ public class MapManager : MonoBehaviour
                     }
                 }
             }
+        }
+
+        if (audioSource.clip != null)
+        {
+            if (lastSetValue != progressBar.value)
+            {
+                GlobalData.currentBeat = (GlobalData.bpm * progressBar.value * audioSource.clip.length)/60;
+                ResyncAudio();
+            }
+
+            progressBar.value = audioSource.time / audioSource.clip.length;
+            lastSetValue = progressBar.value;
         }
 
         prevBeat = GlobalData.currentBeat;
