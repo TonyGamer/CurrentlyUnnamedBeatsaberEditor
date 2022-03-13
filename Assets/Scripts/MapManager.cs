@@ -24,6 +24,7 @@ public class MapManager : MonoBehaviour
     public Dropdown diffSelect;
     public GameObject warning;
     public Slider progressBar;
+    public Text timeRemaining;
 
     private MapData mapData;
     private DifData difData;
@@ -34,6 +35,8 @@ public class MapManager : MonoBehaviour
 
     private static bool hasSpawnablesChanged = false;
 
+    private bool hasAudioLoaded;
+
     private int spawnIndex = -1;
     private int oldestSpawnIndex = 0;
     private float prevBeat;
@@ -41,6 +44,8 @@ public class MapManager : MonoBehaviour
     private AudioSource audioSource;
 
     private float lastSetValue;
+
+    private string maxTimeString;
 
     [Header("Debugging")]
     public string selectedFolder;
@@ -84,9 +89,14 @@ public class MapManager : MonoBehaviour
 
     void Update()
     {
+        if (!hasAudioLoaded)
+        {
+            return;
+        }
+
         int end = spawnables.Length - 1;
 
-        if (GlobalData.paused && audioSource.isPlaying)
+        if (GlobalData.paused)
         {
             audioSource.Pause();
         }
@@ -95,81 +105,84 @@ public class MapManager : MonoBehaviour
             audioSource.Play();
         }
 
-        float speed = GlobalData.currentBeat - prevBeat;
-
-        if (speed == 0) { return; }
-
-        bool direction = speed > 0;
-
-        if (direction)
-        { // forwards
-            if (spawnIndex + 1 <= end)
-            {
-                while (CheckForSpawn(spawnables[spawnIndex + 1].b, true))
-                {
-                    spawnIndex++;
-                    spawner.SpawnSpawnable(spawnables[spawnIndex], spawnIndex);
-
-                    if (spawnIndex + 1 > end)
-                    {
-                        break;
-                    }
-                }
-            }
-
-            if (oldestSpawnIndex <= end)
-            {
-                while (CheckForDespawn(spawnables[oldestSpawnIndex].b, true))
-                {
-                    oldestSpawnIndex++;
-
-                    if (oldestSpawnIndex > end)
-                    {
-                        break;
-                    }
-                }
-            }
-        }
-        else // backwards
-        {
-            if (oldestSpawnIndex > 0)
-            {
-                while (CheckForSpawn(spawnables[oldestSpawnIndex - 1].b, false))
-                {
-                    oldestSpawnIndex--;
-                    spawner.SpawnSpawnable(spawnables[oldestSpawnIndex], oldestSpawnIndex);
-
-                    if (oldestSpawnIndex <= 0)
-                    {
-                        break;
-                    }
-                }
-            }
-
-            if (spawnIndex >= 0)
-            {
-                while (CheckForDespawn(spawnables[spawnIndex].b, false))
-                {
-                    spawnIndex--;
-
-                    if (spawnIndex < 0)
-                    {
-                        break;
-                    }
-                }
-            }
-        }
+        UpdateTimeRemaining();
 
         if (audioSource.clip != null)
         {
             if (lastSetValue != progressBar.value)
             {
-                GlobalData.currentBeat = (GlobalData.bpm * progressBar.value * audioSource.clip.length)/60;
+                GlobalData.currentBeat = (GlobalData.bpm * progressBar.value * audioSource.clip.length) / 60;
                 ResyncAudio();
             }
 
             progressBar.value = audioSource.time / audioSource.clip.length;
             lastSetValue = progressBar.value;
+        }
+
+        float speed = GlobalData.currentBeat - prevBeat;
+
+        if (speed != 0)
+        {
+            bool direction = speed > 0;
+
+            if (direction)
+            { // forwards
+                if (spawnIndex + 1 <= end)
+                {
+                    while (CheckForSpawn(spawnables[spawnIndex + 1].b, true))
+                    {
+                        spawnIndex++;
+                        spawner.SpawnSpawnable(spawnables[spawnIndex], spawnIndex);
+
+                        if (spawnIndex + 1 > end)
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                if (oldestSpawnIndex <= end)
+                {
+                    while (CheckForDespawn(spawnables[oldestSpawnIndex].b, true))
+                    {
+                        oldestSpawnIndex++;
+
+                        if (oldestSpawnIndex > end)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+            else // backwards
+            {
+                if (oldestSpawnIndex > 0)
+                {
+                    while (CheckForSpawn(spawnables[oldestSpawnIndex - 1].b, false))
+                    {
+                        oldestSpawnIndex--;
+                        spawner.SpawnSpawnable(spawnables[oldestSpawnIndex], oldestSpawnIndex);
+
+                        if (oldestSpawnIndex <= 0)
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                if (spawnIndex >= 0)
+                {
+                    while (CheckForDespawn(spawnables[spawnIndex].b, false))
+                    {
+                        spawnIndex--;
+
+                        if (spawnIndex < 0)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
         }
 
         prevBeat = GlobalData.currentBeat;
@@ -190,6 +203,11 @@ public class MapManager : MonoBehaviour
                 audioSource.clip = DownloadHandlerAudioClip.GetContent(www);
             }
         }
+
+        int seconds = (int)audioSource.clip.length;
+        int minutes = seconds / 60;
+        maxTimeString = " / " + string.Format("{0:D1}:{1:D2}", minutes, seconds % 60);
+        hasAudioLoaded = true;
     }
 
     T ImportJson<T>(string path)
@@ -277,7 +295,7 @@ public class MapManager : MonoBehaviour
 
     public void ResyncAudio()
     {
-        audioSource.time = (60 * (GlobalData.currentBeat) / GlobalData.bpm) + GlobalData.audioOffset;
+        audioSource.time = 60 * ((GlobalData.currentBeat) / GlobalData.bpm) + GlobalData.audioOffset;
     }
 
     public bool CheckForSpawn(float beat, bool forwards)
@@ -421,5 +439,13 @@ public class MapManager : MonoBehaviour
 
         DifficultyBeatmap difficultyBeatMap = mapData._difficultyBeatmapSets[currentType]._difficultyBeatmaps[currentDiff];
         ExportJson<DifData>(GlobalData.selectedFolder + "/" + difficultyBeatMap._beatmapFilename, difData);
+    }
+    
+    private void UpdateTimeRemaining()
+    {
+        int seconds = (int)audioSource.time;
+        int minutes = seconds / 60;
+
+        timeRemaining.text = string.Format("{0:D1}:{1:D2}", minutes, seconds % 60) + maxTimeString;
     }
 }
