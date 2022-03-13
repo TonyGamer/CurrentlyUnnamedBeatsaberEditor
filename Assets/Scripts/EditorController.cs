@@ -16,6 +16,18 @@ public class EditorController : MonoBehaviour
     private Plane hitPlane;
     private Vector3 offset;
 
+    public SpawnableToPlace spawnableToPlace = SpawnableToPlace.Red;
+
+    public enum SpawnableToPlace
+    {
+        Red,
+        Blue,
+        Bomb,
+        Wall,
+        Stack,
+        Rail
+    }
+
     void Start()
     {
         GlobalData.paused = true;

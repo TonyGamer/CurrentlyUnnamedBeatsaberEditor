@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CameraControl : MonoBehaviour
 {
@@ -39,6 +40,13 @@ public class CameraControl : MonoBehaviour
     public KeyCode PrecisionUp = KeyCode.UpArrow;
     public KeyCode PrecisionDown = KeyCode.DownArrow;
 
+    public KeyCode RedNote = KeyCode.Alpha1;
+    public KeyCode BlueNote = KeyCode.Alpha2;
+    public KeyCode Bomb = KeyCode.Alpha3;
+    public KeyCode Wall = KeyCode.Alpha4;
+    public KeyCode Stack = KeyCode.Alpha5;
+    public KeyCode Rail = KeyCode.Alpha6;
+
     [Header("NoteControls")]
     public KeyCode RotLeft = KeyCode.Q;
     public KeyCode RotRight = KeyCode.E;
@@ -47,10 +55,18 @@ public class CameraControl : MonoBehaviour
     public float repeatStart = 0.5f;
     public float repeatDelay = 0.05f;
 
+    [Header("Images")]
+    public Sprite NoteImage;
+    public Sprite BombImage;
+    public Sprite WallImage;
+    public Sprite StackImage;
+    public Sprite RailImage;
+
     [Header("References")]
     public MenuManager menuManager;
     public MapManager mapManager;
     public EditorController editorController;
+    public Image indicator;
 
     private Vector3 _moveSpeed;
 
@@ -233,11 +249,50 @@ public class CameraControl : MonoBehaviour
         {
             KeyRepeat(ref PrecUpKey, ChangePrecision, -1);
             KeyRepeat(ref PrecDownKey, ChangePrecision, 1);
-            KeyRepeat(ref SeekBackKey, Seek, (float)-GlobalData.beatPrecision);
-            KeyRepeat(ref SeekForeKey, Seek, (float)GlobalData.beatPrecision);
+            KeyRepeat(ref SeekBackKey, Seek, -1f);
+            KeyRepeat(ref SeekForeKey, Seek, 1f);
+
+            if (Input.GetKeyDown(RedNote))
+            {
+                editorController.spawnableToPlace = EditorController.SpawnableToPlace.Red;
+                indicator.sprite = NoteImage;
+                indicator.color = Color.red;
+            }
+            else if (Input.GetKeyDown(BlueNote))
+            {
+                editorController.spawnableToPlace = EditorController.SpawnableToPlace.Blue;
+                indicator.sprite = NoteImage;
+                indicator.color = Color.blue;
+            }
+            else if (Input.GetKeyDown(Bomb))
+            {
+                editorController.spawnableToPlace = EditorController.SpawnableToPlace.Bomb;
+                indicator.sprite = BombImage;
+                indicator.color = Color.black;
+            }
+            else if (Input.GetKeyDown(Wall))
+            {
+                editorController.spawnableToPlace = EditorController.SpawnableToPlace.Wall;
+                indicator.sprite = WallImage;
+                indicator.color = Color.black;
+            }
+            else if (Input.GetKeyDown(Stack))
+            {
+                editorController.spawnableToPlace = EditorController.SpawnableToPlace.Stack;
+                indicator.sprite = StackImage;
+                indicator.color = Color.black;
+            }
+            else if (Input.GetKeyDown(Rail))
+            {
+                editorController.spawnableToPlace = EditorController.SpawnableToPlace.Rail;
+                indicator.sprite = RailImage;
+                indicator.color = Color.black;
+            }
 
             KeyRepeat(ref RotLeftKey, RotateCurrent, -1);
             KeyRepeat(ref RotRightKey, RotateCurrent, 1);
+
+            Seek(Input.mouseScrollDelta.y);
         }
     }
 
@@ -261,7 +316,7 @@ public class CameraControl : MonoBehaviour
 
     public void Seek(float amount)
     {
-        GlobalData.currentBeat += amount;
+        GlobalData.currentBeat += amount * GlobalData.beatPrecision;
         mapManager.ResyncAudio();
     }
 
