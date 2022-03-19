@@ -360,9 +360,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   snapWhenPaused: 1
+  mapManager: {fileID: 1546118955}
   snapWhenPausedToggle: {fileID: 1664801248}
   hitSpawnable: {fileID: 0}
   spawnableToPlace: 0
+  spawnableColor: 0
 --- !u!4 &49988936
 Transform:
   m_ObjectHideFlags: 0
@@ -3206,7 +3208,7 @@ GameObject:
   - component: {fileID: 722271530}
   - component: {fileID: 722271529}
   - component: {fileID: 722271528}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Ground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4063,12 +4065,11 @@ MonoBehaviour:
   SeekForward: 275
   PrecisionUp: 273
   PrecisionDown: 274
-  RedNote: 49
-  BlueNote: 50
-  Bomb: 51
-  Wall: 52
-  Stack: 53
-  Rail: 54
+  Note: 49
+  Bomb: 50
+  Wall: 51
+  Stack: 52
+  Rail: 53
   RotLeft: 113
   RotRight: 101
   repeatStart: 0.5

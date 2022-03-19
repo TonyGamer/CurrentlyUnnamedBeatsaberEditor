@@ -160,4 +160,10 @@ public class Rail : Colored, HasEnd
     {
         return new SliderSerial(rail.beat, rail.x, rail.y, rail.color, rail.cutDirection, rail.tailBeat, rail.tailX, rail.tailY, rail.tailDirection, rail.lengthMultiplier, rail.tailLengthMultiplier, rail.anchor);
     }
+
+    void OnDestroy()
+    {
+        Spawner.RemoveSpawnable(gameObject);
+        Destroy(railEnd);
+    }
 }

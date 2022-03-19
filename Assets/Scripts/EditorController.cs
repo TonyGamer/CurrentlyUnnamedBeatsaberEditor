@@ -8,6 +8,7 @@ public class EditorController : MonoBehaviour
     public bool snapWhenPaused = true;
 
     [Header("References")]
+    public MapManager mapManager;
     public Toggle snapWhenPausedToggle;
 
     public Spawnable hitSpawnable;
@@ -16,12 +17,12 @@ public class EditorController : MonoBehaviour
     private Plane hitPlane;
     private Vector3 offset;
 
-    public SpawnableToPlace spawnableToPlace = SpawnableToPlace.Red;
+    public SpawnableType spawnableToPlace = SpawnableType.Note;
+    public int spawnableColor = 0;
 
-    public enum SpawnableToPlace
+    public enum SpawnableType
     {
-        Red,
-        Blue,
+        Note,
         Bomb,
         Wall,
         Stack,
@@ -66,24 +67,15 @@ public class EditorController : MonoBehaviour
             }
             else
             {
-                hitSpawnable = null;
-
+                hitPlane = new Plane(Vector3.forward, Vector3.zero);
                 Vector3 spawnPosition = GetPlaneIntersect();
+ 
+                hitSpawnable = mapManager.AddSpawnable(spawnableToPlace, (int)Mathf.Floor(spawnPosition.x + 2), (int)Mathf.Floor(spawnPosition.y), spawnableColor);
 
-                switch (spawnableToPlace)
+                if(hitSpawnable != null)
                 {
-                    case (SpawnableToPlace.Red):
-                        break;
-                    case (SpawnableToPlace.Blue):
-                        break;
-                    case (SpawnableToPlace.Bomb):
-                        break;
-                    case (SpawnableToPlace.Wall):
-                        break;
-                    case (SpawnableToPlace.Stack):
-                        break;
-                    case (SpawnableToPlace.Rail):
-                        break;
+                    hitSpawnable.selected = true;
+                    offset = spawnPosition - new Vector3(hitSpawnable.x, hitSpawnable.y, 0);
                 }
             }
 
@@ -145,5 +137,10 @@ public class EditorController : MonoBehaviour
         Vector3 curPosition = Camera.main.ScreenToWorldPoint(curScreenPoint);
 
         return curPosition;
+    }
+
+    public void DeleteSelected()
+    {
+        mapManager.DeleteSpawnable(hitSpawnable);
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using static EditorController;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ using UnityEngine.Networking;
 public class MapManager : MonoBehaviour
 {
     [HideInInspector]
-    public bool isMapVaild = false;
+    public bool isMapVaild = true;
 
     [Header("Defaults")]
     [Range(0, 100)]
@@ -34,7 +35,7 @@ public class MapManager : MonoBehaviour
     private int currentType;
     private int currentDiff;
 
-    private static SpawnableSerial[] spawnables;
+    private static List<SpawnableSerial> spawnables;
 
     private static bool hasSpawnablesChanged = false;
 
@@ -91,7 +92,7 @@ public class MapManager : MonoBehaviour
 
         audioSource = GetComponent<AudioSource>();
 
-        StartCoroutine(loadSong());
+        StartCoroutine(LoadSong());
 
         volume.value = defaultVolume;
         UpdateVolume();
@@ -99,14 +100,14 @@ public class MapManager : MonoBehaviour
 
     void Update()
     {
-        if (!isMapVaild) return;
+        if (isMapVaild) return;
 
         if (!hasAudioLoaded)
         {
             return;
         }
 
-        int end = spawnables.Length - 1;
+        int end = spawnables.Count - 1;
 
         if (GlobalData.paused)
         {
@@ -200,7 +201,7 @@ public class MapManager : MonoBehaviour
         prevBeat = GlobalData.currentBeat;
     }
 
-    private IEnumerator loadSong()
+    private IEnumerator LoadSong()
     {
         using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip("file:///" + GlobalData.selectedFolder + "/" + mapData._songFilename, AudioType.OGGVORBIS))
         {
@@ -344,7 +345,7 @@ public class MapManager : MonoBehaviour
         return false;
     }
 
-    private SpawnableSerial[] CreateSpawnablesList(DifData difData)
+    private List<SpawnableSerial> CreateSpawnablesList(DifData difData)
     {
         List<NoteSerial> notes = difData.colorNotes.ToList<NoteSerial>();
         List<BombSerial> bombs = difData.bombNotes.ToList<BombSerial>();
@@ -362,7 +363,7 @@ public class MapManager : MonoBehaviour
         SpawnableSerial[] spawnableArray = spawnables.ToArray();
         Array.Sort(spawnableArray);
 
-        return spawnableArray;
+        return spawnableArray.ToList();
     }
 
     public static void UpdateSpawnable(Spawnable spawnable)
@@ -459,5 +460,45 @@ public class MapManager : MonoBehaviour
         int minutes = seconds / 60;
 
         timeRemaining.text = string.Format("{0:D1}:{1:D2}", minutes, seconds % 60) + maxTimeString;
+    }
+
+    public Spawnable AddSpawnable(EditorController.SpawnableType spawnableType, int x, int y, int color)
+    {
+        int index = spawnables.BinarySearch(new BombSerial(GlobalData.currentBeat, 0, 0));
+        if (index < 0) index = ~index;
+
+        switch (spawnableType)
+        {
+            case (SpawnableType.Note):
+                spawnables.Insert(index, new NoteSerial(GlobalData.currentBeat, x, y, color, 0, 0));
+                break;
+            case (SpawnableType.Bomb):
+                spawnables.Insert(index, new BombSerial(GlobalData.currentBeat, x, y));
+                break;
+            case (SpawnableType.Wall):
+                spawnables.Insert(index, new ObstacleSerial(GlobalData.currentBeat, x, y, 1, 1, 0.5f));
+                break;
+            case (SpawnableType.Stack):
+                spawnables.Insert(index, new BurstSliderSerial(GlobalData.currentBeat, x, y, color, 0, GlobalData.currentBeat + 0.5f, 0, 0, 2, 0.5f));
+                break;
+            case (SpawnableType.Rail):
+                spawnables.Insert(index, new SliderSerial(GlobalData.currentBeat, x, y, color, 0, GlobalData.currentBeat + 0.5f, 0, 0, 0, 1, 1, 0));
+                break;
+        }
+
+        spawnIndex++;
+
+        spawner.AdjustSpawnableIndicies(index);
+
+        return spawner.SpawnSpawnable(spawnables[index], index);
+    }
+
+    public void DeleteSpawnable(Spawnable spawnableToRemove)
+    {
+        spawnables.RemoveAt(spawnableToRemove.index);
+
+        Destroy(spawnableToRemove.gameObject);
+
+        spawnIndex--;
     }
 }

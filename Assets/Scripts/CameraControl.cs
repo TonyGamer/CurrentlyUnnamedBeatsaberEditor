@@ -1,5 +1,6 @@
 ﻿// Much of this code is borrowed from https://stackoverflow.com/questions/58328209/how-to-make-a-free-fly-camera-script-in-unity-with-acceleration-and-decceleratio
 
+using static EditorController;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -40,12 +41,13 @@ public class CameraControl : MonoBehaviour
     public KeyCode PrecisionUp = KeyCode.UpArrow;
     public KeyCode PrecisionDown = KeyCode.DownArrow;
 
-    public KeyCode RedNote = KeyCode.Alpha1;
-    public KeyCode BlueNote = KeyCode.Alpha2;
-    public KeyCode Bomb = KeyCode.Alpha3;
-    public KeyCode Wall = KeyCode.Alpha4;
-    public KeyCode Stack = KeyCode.Alpha5;
-    public KeyCode Rail = KeyCode.Alpha6;
+    public KeyCode Note = KeyCode.Alpha1;
+    public KeyCode Bomb = KeyCode.Alpha2;
+    public KeyCode Wall = KeyCode.Alpha3;
+    public KeyCode Stack = KeyCode.Alpha4;
+    public KeyCode Rail = KeyCode.Alpha5;
+
+    public KeyCode Delete = KeyCode.Delete;
 
     [Header("NoteControls")]
     public KeyCode RotLeft = KeyCode.Q;
@@ -252,41 +254,49 @@ public class CameraControl : MonoBehaviour
             KeyRepeat(ref SeekBackKey, Seek, -1f);
             KeyRepeat(ref SeekForeKey, Seek, 1f);
 
-            if (Input.GetKeyDown(RedNote))
+            if (Input.GetKeyDown(Note))
             {
-                editorController.spawnableToPlace = EditorController.SpawnableToPlace.Red;
+                editorController.spawnableToPlace = SpawnableType.Note;
                 indicator.sprite = NoteImage;
-                indicator.color = Color.red;
-            }
-            else if (Input.GetKeyDown(BlueNote))
-            {
-                editorController.spawnableToPlace = EditorController.SpawnableToPlace.Blue;
-                indicator.sprite = NoteImage;
-                indicator.color = Color.blue;
             }
             else if (Input.GetKeyDown(Bomb))
             {
-                editorController.spawnableToPlace = EditorController.SpawnableToPlace.Bomb;
+                editorController.spawnableToPlace = SpawnableType.Bomb;
                 indicator.sprite = BombImage;
-                indicator.color = Color.black;
             }
             else if (Input.GetKeyDown(Wall))
             {
-                editorController.spawnableToPlace = EditorController.SpawnableToPlace.Wall;
+                editorController.spawnableToPlace = SpawnableType.Wall;
                 indicator.sprite = WallImage;
-                indicator.color = Color.black;
             }
             else if (Input.GetKeyDown(Stack))
             {
-                editorController.spawnableToPlace = EditorController.SpawnableToPlace.Stack;
+                editorController.spawnableToPlace = SpawnableType.Stack;
                 indicator.sprite = StackImage;
-                indicator.color = Color.black;
             }
             else if (Input.GetKeyDown(Rail))
             {
-                editorController.spawnableToPlace = EditorController.SpawnableToPlace.Rail;
+                editorController.spawnableToPlace = SpawnableType.Rail;
                 indicator.sprite = RailImage;
-                indicator.color = Color.black;
+            }
+
+            if (Input.GetKeyDown(Delete))
+            {
+                editorController.DeleteSelected();
+            }
+
+            if (Input.GetMouseButtonDown(2))
+            {
+                if (editorController.spawnableColor == 1)
+                {
+                    indicator.color = Color.red;
+                    editorController.spawnableColor = 0;
+                }
+                else
+                {
+                    indicator.color = Color.blue;
+                    editorController.spawnableColor = 1;
+                }
             }
 
             KeyRepeat(ref RotLeftKey, RotateCurrent, -1);
@@ -316,7 +326,7 @@ public class CameraControl : MonoBehaviour
 
     public void Seek(float amount)
     {
-        if(amount == 0)
+        if (amount == 0)
         {
             return;
         }

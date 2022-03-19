@@ -10,6 +10,8 @@ using System.IO;
 [RequireComponent(typeof(InputField))]
 public class FileLoader : MonoBehaviour
 {
+    public bool createNewSong = false;
+
     public void LoadScene()
     {
         var input = GetComponent<InputField>();

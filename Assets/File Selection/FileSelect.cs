@@ -11,25 +11,6 @@ using SFB;
 public class FileSelect : MonoBehaviour, IPointerDownHandler {
     public InputField input;
 
-#if UNITY_WEBGL && !UNITY_EDITOR
-    //
-    // WebGL
-    //
-    [DllImport("__Internal")]
-    private static extern void UploadFile(string gameObjectName, string methodName, string filter, bool multiple);
-
-    public void OnPointerDown(PointerEventData eventData) {
-        UploadFile(gameObject.name, "OnFileUpload", ".json", false);
-    }
-
-    // Called from browser
-    public void OnFileUpload(string url) {
-        StartCoroutine(OutputRoutine(url));
-    }
-#else
-    //
-    // Standalone platforms & editor
-    //
     public void OnPointerDown(PointerEventData eventData) { }
 
     void Start() {
@@ -38,10 +19,9 @@ public class FileSelect : MonoBehaviour, IPointerDownHandler {
     }
 
     private void OnClick() {
-        var paths = StandaloneFileBrowser.OpenFilePanel("Title", "", new[] { new ExtensionFilter("Map Data", "dat", "json") }, false);
+        var paths = StandaloneFileBrowser.OpenFolderPanel("", "", false);
         if (paths.Length > 0) {
             input.text = System.IO.Directory.GetParent(paths[0]).FullName;
         }
     }
-#endif
 }
