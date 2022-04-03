@@ -1,13 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 [RequireComponent(typeof(Collider))]
 public class Note : Colored
 {
     [Header("Note")]
     public int angleOffset;
-    private bool isHead; // Used for sliders
 
     [Header("References")]
     public ParticleSystem particle;
@@ -22,8 +19,12 @@ public class Note : Colored
         this.angleOffset = angleOffset;
     }
 
-    void Start()
+    public void Start()
     {
+        Debug.Log(cutDirection);
+        Debug.Log(angleOffset);
+        transform.rotation = Spawner.CalculateRotation(cutDirection, angleOffset);
+
         var startColor = gameObject.GetComponent<Renderer>().material.color;
         var endColor = startColor;
         endColor.a = 0;
@@ -36,7 +37,6 @@ public class Note : Colored
     public override void UpdateRotation()
     {
         transform.rotation = Spawner.CalculateRotation(cutDirection, angleOffset);
-        Changed();
     }
 
     public static explicit operator NoteSerial(Note note)
@@ -46,8 +46,6 @@ public class Note : Colored
 
     public void SetHead(bool head)
     {
-        isHead = head;
-
         Renderer renderer = gameObject.GetComponent<Renderer>();
         Collider collider = gameObject.GetComponent<Collider>();
 

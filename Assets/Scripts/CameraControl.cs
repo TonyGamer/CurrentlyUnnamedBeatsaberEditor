@@ -1,9 +1,7 @@
 ﻿// Much of this code is borrowed from https://stackoverflow.com/questions/58328209/how-to-make-a-free-fly-camera-script-in-unity-with-acceleration-and-decceleratio
 
-using static EditorController;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.UI;
@@ -71,6 +69,7 @@ public class CameraControl : MonoBehaviour
     public int spawnableColor = 0;
 
     private Spawnable hitSpawnable;
+    private Selectable hitSelectable;
     private Selectable lastHitSelectable;
 
     private Plane hitPlane;
@@ -271,7 +270,7 @@ public class CameraControl : MonoBehaviour
             }
             else if (Input.GetKey(KeyCode.LeftAlt))
             {
-                if(hitSpawnable != null)
+                if(hitSelectable != null)
                 {
                     ChangeBeat((int)Input.mouseScrollDelta.y);
                 }
@@ -314,7 +313,13 @@ public class CameraControl : MonoBehaviour
 
                 if (Input.GetKeyDown(Delete))
                 {
-                    Spawner.RemoveSpawnable(hitSpawnable.gameObject);
+                    if (hitSelectable.GetType().IsSubclassOf(typeof(Spawnable)))
+                    {
+                        mapManager.DeleteSpawnable(hitSelectable as Spawnable);
+                    } else
+                    {
+                        Destroy(hitSelectable.gameObject);
+                    }
                 }
 
                 if (Input.GetMouseButtonDown(2))
@@ -350,58 +355,59 @@ public class CameraControl : MonoBehaviour
                 RaycastHit hit;
                 if (Physics.Raycast(ray, out hit, Mathf.Infinity, ~(1 << 8)))
                 {
-                    Selectable hitSelectable = hit.transform.GetComponent<Selectable>();
+                    hitSelectable = hit.transform.GetComponent<Selectable>();
 
                     if (hitSelectable != null)
                     {
+                        hitSelectable.Selected(!hitSelectable.GetSelected());
                         hitSpawnable = hitSelectable.GetRoot();
-                        hitSpawnable.Selected(!hitSpawnable.GetSelected());
-                    } else
-                    {
-                        hitSpawnable = null;
                     }
                 }
-                else if (hitSpawnable == null)
+                else if (hitSelectable == null)
                 {
                     hitPlane = new Plane(Vector3.forward, Vector3.zero);
                     Vector3 spawnPosition = GetPlaneIntersect();
 
-                    hitSpawnable = mapManager.AddSpawnable(spawnableToPlace, (int)Mathf.Floor(spawnPosition.x + 2), (int)Mathf.Floor(spawnPosition.y), spawnableColor);
+                    hitSelectable = mapManager.AddSpawnable(spawnableToPlace, (int)Mathf.Floor(spawnPosition.x + 2), (int)Mathf.Floor(spawnPosition.y), spawnableColor);
 
-                    if (hitSpawnable != null)
+                    if (hitSelectable != null)
                     {
-                        hitSpawnable.Selected(true);
+                        hitSelectable.Selected(true);
                     }
                 }
                 else
                 {
-                    hitSpawnable.Selected(false);
-                    hitSpawnable = null;
+                    hitSelectable.Selected(false);
+                    hitSelectable = null;
                 }
 
-                if (lastHitSelectable != null && lastHitSelectable != hitSpawnable)
+                if (lastHitSelectable != null && lastHitSelectable != hitSelectable)
                 {
                     lastHitSelectable.Selected(false);
                 }
 
-                lastHitSelectable = hitSpawnable;
+                lastHitSelectable = hitSelectable;
             }
 
-            if (movingObject && !movingObjectPrev && hitSpawnable != null)
+            if (hitSpawnable != null)
             {
-                hitPlane = new Plane(Vector3.forward, hitSpawnable.transform.position);
-                offset = GetPlaneIntersect() - new Vector3(hitSpawnable.x, hitSpawnable.y, 0);
-            }
-
-            if (movingObject && hitSpawnable != null)
-            {
-                if (hitSpawnable.GetSelected())
+                if (movingObject && !movingObjectPrev)
                 {
-                    Vector3 curPosition = GetPlaneIntersect() - offset;
+                    hitPlane = new Plane(Vector3.forward, hitSpawnable.transform.position);
 
-                    MoveCurrent((int)Mathf.Floor(curPosition.x + 0.5f), (int)Mathf.Floor(curPosition.y + 0.5f));
+                    offset = GetPlaneIntersect() - new Vector3(hitSpawnable.x, hitSpawnable.y, 0);
+                }
 
-                    hitSpawnable.Moved();
+                if (movingObject)
+                {
+                    if (hitSpawnable.GetSelected())
+                    {
+                        Vector3 curPosition = GetPlaneIntersect() - offset;
+
+                        MoveCurrent((int)Mathf.Floor(curPosition.x + 0.5f), (int)Mathf.Floor(curPosition.y + 0.5f));
+
+                        hitSpawnable.Moved();
+                    }
                 }
             }
 
@@ -447,9 +453,9 @@ public class CameraControl : MonoBehaviour
 
     public void RotateCurrent(int direction)
     {
-        if (hitSpawnable.GetType().IsSubclassOf(typeof(Colored)) && hitSpawnable.GetSelected())
+        if (hitSelectable.GetType().IsSubclassOf(typeof(Colored)) && hitSelectable.GetSelected())
         {
-            Colored hitColored = hitSpawnable as Colored;
+            Colored hitColored = hitSelectable as Colored;
             hitColored.cutDirection = (((hitColored.cutDirection + (int)direction) % 8) + 8) % 8;
             hitColored.UpdateRotation();
         }

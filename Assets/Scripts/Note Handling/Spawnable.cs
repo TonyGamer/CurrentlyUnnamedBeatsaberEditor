@@ -14,7 +14,6 @@ public abstract class Spawnable : Selectable
 
     public virtual void Update()
     {
-
         transform.position = Spawner.CalculatePosition(x, y, beat);
 
         CheckForDestroy();

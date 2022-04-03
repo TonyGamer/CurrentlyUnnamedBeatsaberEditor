@@ -1,23 +1,21 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 [RequireComponent(typeof(LineRenderer))]
-public class Rail : Colored, HasEnd
+public class Rail : Colored
 {
-    public float tailBeat { get; set; }
+    [Header("Rail")]
+    public float tailBeat;
     public int tailX;
     public int tailY;
     public int tailDirection;
     public int lengthMultiplier;
     public int tailLengthMultiplier;
     public int anchor;
+    public int segmentCount;
 
-    private const int LENGTH_CONSTANT = 3;
-
-    [Header("References")]
-    public GameObject railEndInstance;
+    public Gizmo railEnd;
 
     [HideInInspector]
     public Vector3[] controlPoints;
@@ -25,11 +23,10 @@ public class Rail : Colored, HasEnd
     public LineRenderer lineRenderer;
     [HideInInspector]
     public MeshCollider meshCollider;
-    [HideInInspector]
-    public RailEnd railEnd;
 
     private int curveCount;
-    private int segmentCount;
+
+    private const int LENGTH_CONSTANT = 3;
 
     public Rail(float beat, int x, int y, int color, int cutDirection, float tailBeat, int tailX, int tailY, int tailDirection, int lengthMultiplier, int tailLengthMultiplier, int anchor)
     {
@@ -47,20 +44,20 @@ public class Rail : Colored, HasEnd
         this.anchor = anchor;
     }
 
-    void Start()
+    public void Start()
     {
         if (railEnd == null)
         {
-            railEnd = Instantiate(railEndInstance).GetComponent<RailEnd>();
+            Debug.LogError("No rail end was assigned!");
+            Destroy(this);
         }
 
-        railEnd.railStart = this;
+        railEnd.parent = this;
 
         railEnd.x = tailX;
         railEnd.y = tailY;
-        railEnd.beat = beat;
-        railEnd.posBeat = tailBeat;
-        railEnd.cutDirection = tailDirection;
+        railEnd.beat = tailBeat;
+        railEnd.direction = tailDirection;
 
         lineRenderer = GetComponent<LineRenderer>();
         meshCollider = GetComponent<MeshCollider>();
@@ -128,7 +125,7 @@ public class Rail : Colored, HasEnd
 
     public override void UpdateRotation()
     {
-        tailDirection = railEnd.cutDirection;
+        tailDirection = railEnd.direction;
 
         Quaternion rotation = Spawner.CalculateRotation(cutDirection, 0);
         float angle = -Mathf.Deg2Rad * rotation.eulerAngles.z;
@@ -146,16 +143,15 @@ public class Rail : Colored, HasEnd
         curveCount = (int)controlPoints.Length / 3;
 
         DrawCurve();
-
-        Changed();
     }
 
     public override void Moved()
     {
-        tailX = railEnd.x;
-        tailY = railEnd.y;
-        tailBeat = railEnd.posBeat;
+        tailX = (int)railEnd.x;
+        tailY = (int)railEnd.y;
+        tailBeat = railEnd.beat;
         UpdateRotation();
+        Changed();
     }
 
     public static explicit operator SliderSerial(Rail rail)

@@ -12,6 +12,16 @@ public class BurstElement : Selectable
         this.head = head;
     }
 
+    public override void Selected(bool selected)
+    {
+        head.Selected(selected);
+    }
+
+    public void SliderSelect(bool selected)
+    {
+        base.Selected(selected);
+    }
+
     public void SetAlpha(float alpha)
     {
         List<Material> materials = gameObject.GetComponent<Renderer>().materials.ToList();

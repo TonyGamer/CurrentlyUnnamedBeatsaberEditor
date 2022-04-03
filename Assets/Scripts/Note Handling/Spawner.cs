@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using System.IO;
 
 public class Spawner : MonoBehaviour
 {
@@ -57,7 +55,7 @@ public class Spawner : MonoBehaviour
             noteMesh = dotObject;
         }
 
-        GameObject spawnedNote = Instantiate(noteObject, Vector3.zero, Quaternion.identity);
+        GameObject spawnedNote = Instantiate(noteMesh, Vector3.zero, Quaternion.identity);
         Note noteComp = spawnedNote.GetComponent<Note>();
 
         spawnedNote.GetComponent<Renderer>().material.color = GetColor(color);
@@ -69,6 +67,7 @@ public class Spawner : MonoBehaviour
         noteComp.cutDirection = cutDirection;
         noteComp.color = color;
 
+        noteComp.Start();
         noteComp.Update();
 
         spawnables.Add(spawnedNote);
@@ -150,6 +149,7 @@ public class Spawner : MonoBehaviour
         railComp.tailLengthMultiplier = tailLengthMultiplier;
         railComp.anchor = anchor;
 
+        railComp.Start();
         railComp.Update();
 
         spawnables.Add(spawnedRail);
@@ -181,6 +181,7 @@ public class Spawner : MonoBehaviour
         bsComp.sliceCount = sliceCount;
         bsComp.squash = squash;
 
+        bsComp.Start();
         bsComp.Update();
 
         spawnables.Add(spawnedBS);

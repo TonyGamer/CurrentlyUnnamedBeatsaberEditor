@@ -1,11 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class BurstSlider : Colored, HasEnd
+public class BurstSlider : Colored
 {
-    public float tailBeat { get; set; }
+    [Header("Burst Slider")]
+    public float tailBeat;
     public int tailX;
     public int tailY;
     public int sliceCount;
@@ -34,18 +34,21 @@ public class BurstSlider : Colored, HasEnd
         this.squash = squash;
     }
 
-    void Start()
+    public void Start()
     {
-        elements = new GameObject[sliceCount - 1];
-
-        for(int i = 0; i < (sliceCount - 1); i++)
+        if(elements.Length != sliceCount - 1)
         {
-            elements[i] = Instantiate(elementObject, transform);
-            elements[i].GetComponent<Renderer>().material.color = Spawner.GetColor(color);
-            elements[i].GetComponent<BurstElement>().head = this;
-        }
+            elements = new GameObject[sliceCount - 1];
 
-        UpdateRotation();
+            for (int i = 0; i < (sliceCount - 1); i++)
+            {
+                elements[i] = Instantiate(elementObject, transform);
+                elements[i].GetComponent<Renderer>().material.color = Spawner.GetColor(color);
+                elements[i].GetComponent<BurstElement>().head = this;
+            }
+
+            UpdateRotation();
+        }
     }
 
     public override void Update()
@@ -67,8 +70,11 @@ public class BurstSlider : Colored, HasEnd
 
     public override void UpdateRotation()
     {
-        head.cutDirection = this.cutDirection;
-        head.UpdateRotation();
+        if(head != null)
+        {
+            head.cutDirection = this.cutDirection;
+            head.UpdateRotation();
+        }
 
         transform.rotation = Spawner.CalculateRotation(cutDirection, 0);
         float angle = -Mathf.Deg2Rad * transform.rotation.eulerAngles.z;
@@ -80,18 +86,25 @@ public class BurstSlider : Colored, HasEnd
         };
 
         DrawCurve();
-
-        Changed();
     }
 
     public override void Moved()
     {
-        base.Moved();
+        if(head != null)
+        {
+            head.x = this.x;
+            head.y = this.y;
+        }
+    }
 
-        head.x = this.x;
-        head.y = this.y;
+    public override void Changed()
+    {
+        base.Changed();
 
-        head.Moved();
+        if(head != null)
+        {
+            head.Changed();
+        }
     }
 
     void DrawCurve()
@@ -196,7 +209,7 @@ public class BurstSlider : Colored, HasEnd
 
         foreach(GameObject element in elements)
         {
-            element.GetComponent<BurstElement>().Selected(selected);
+            element.GetComponent<BurstElement>().SliderSelect(selected);
         }
     }
 }
