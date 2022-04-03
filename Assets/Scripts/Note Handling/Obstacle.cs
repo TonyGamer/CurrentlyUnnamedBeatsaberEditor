@@ -20,11 +20,23 @@ public class Obstacle : Spawnable
         this.duration = duration;
     }
 
+    public override void Update()
+    {
+        base.Update();
+
+        float depth = 0.5f * duration * GlobalData.jumpSpeed;
+        transform.localScale = new Vector3(width * 100, height * 100, depth * 100);
+
+        Vector3 position = transform.position;
+        position.z += depth / 2;
+        transform.position = position;
+    }
+
     public override void CheckForDestroy()
     {
         float beatsTilHit = beat - GlobalData.currentBeat;
 
-        if (!selected && beatsTilHit + duration < -0.5f || beatsTilHit > GlobalData.HJD)
+        if (!selected && (beatsTilHit + duration < -0.5f || beatsTilHit > GlobalData.HJD))
         {
             Destroy(gameObject);
         }

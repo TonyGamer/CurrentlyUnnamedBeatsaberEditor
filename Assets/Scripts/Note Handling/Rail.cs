@@ -163,9 +163,23 @@ public class Rail : Colored, HasEnd
         return new SliderSerial(rail.beat, rail.x, rail.y, rail.color, rail.cutDirection, rail.tailBeat, rail.tailX, rail.tailY, rail.tailDirection, rail.lengthMultiplier, rail.tailLengthMultiplier, rail.anchor);
     }
 
+    public override void CheckForDestroy()
+    {
+        float beatsTilHit = beat - GlobalData.currentBeat;
+        float beatsTilEnd = tailBeat - GlobalData.currentBeat;
+
+        if (!selected && (beatsTilEnd < -0.5f || beatsTilHit > GlobalData.HJD))
+        {
+            Destroy(gameObject);
+        }
+    }
+
     void OnDestroy()
     {
-        Spawner.RemoveSpawnable(gameObject);
-        Destroy(railEnd);
+        if(railEnd != null)
+        {
+            Spawner.RemoveSpawnable(gameObject);
+            Destroy(railEnd);
+        }
     }
 }

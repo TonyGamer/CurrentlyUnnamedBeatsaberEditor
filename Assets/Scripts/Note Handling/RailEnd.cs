@@ -14,6 +14,21 @@ public class RailEnd : Colored
     {
         UpdateRotation();
     }
+    public override void CheckForDestroy()
+    {
+        if(railStart == null) // Self destruct if there is no rail start
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    public void OnDestroy()
+    {
+        if(railStart != null)
+        {
+            Destroy(railStart);
+        }
+    }
 
     public override void Moved()
     {

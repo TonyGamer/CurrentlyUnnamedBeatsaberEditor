@@ -51,15 +51,13 @@ public class Spawner : MonoBehaviour
     public Note SpawnNote(int index, int x, int y, int color, int cutDirection, float beat, int angleOffset)
     {
         GameObject noteMesh = noteObject;
-        Vector3 position = CalculatePosition(x, y, beat);
-        Quaternion rotation = CalculateRotation(cutDirection, angleOffset);
 
         if (cutDirection == 8)
         {
             noteMesh = dotObject;
         }
 
-        GameObject spawnedNote = Instantiate(noteMesh, position, rotation);
+        GameObject spawnedNote = Instantiate(noteObject, Vector3.zero, Quaternion.identity);
         Note noteComp = spawnedNote.GetComponent<Note>();
 
         spawnedNote.GetComponent<Renderer>().material.color = GetColor(color);
@@ -70,6 +68,8 @@ public class Spawner : MonoBehaviour
         noteComp.y = y;
         noteComp.cutDirection = cutDirection;
         noteComp.color = color;
+
+        noteComp.Update();
 
         spawnables.Add(spawnedNote);
 
@@ -83,16 +83,15 @@ public class Spawner : MonoBehaviour
 
     public Bomb SpawnBomb(int index, float beat, int x, int y)
     {
-        Vector3 position = CalculatePosition(x, y, beat);
-        Quaternion rotation = Quaternion.identity;
-
-        GameObject spawnedBomb = Instantiate(bombObject, position, rotation);
+        GameObject spawnedBomb = Instantiate(bombObject, Vector3.zero, Quaternion.identity);
         Bomb bombComp = spawnedBomb.GetComponent<Bomb>();
 
         bombComp.index = index;
         bombComp.beat = beat;
         bombComp.x = x;
         bombComp.y = y;
+
+        bombComp.Update();
 
         spawnables.Add(spawnedBomb);
 
@@ -106,13 +105,7 @@ public class Spawner : MonoBehaviour
 
     public Obstacle SpawnObstacle(int index, float beat, int x, int y, int width, int height, float duration)
     {
-        Vector3 position = CalculatePosition(x + width - 1, y + height - 2, beat);
-        float depth = 0.5f * duration * GlobalData.jumpSpeed;
-
-        position.z += depth / 2;
-
-        GameObject spawnedObstacle = Instantiate(wallObject, position, Quaternion.identity);
-        spawnedObstacle.transform.localScale = new Vector3(width * 100, height * 100, depth * 100);
+        GameObject spawnedObstacle = Instantiate(wallObject, Vector3.zero, Quaternion.identity);
 
         Obstacle obstacleComp = spawnedObstacle.GetComponent<Obstacle>();
 
@@ -123,6 +116,8 @@ public class Spawner : MonoBehaviour
         obstacleComp.width = width;
         obstacleComp.height = height;
         obstacleComp.duration = duration;
+
+        obstacleComp.Update();
 
         spawnables.Add(spawnedObstacle);
 
@@ -136,9 +131,7 @@ public class Spawner : MonoBehaviour
 
     public Rail SpawnRail(int index, float beat, int x, int y, int color, int cutDirection, float tailBeat, int tailX, int tailY, int tailDirection, int lengthMultiplier, int tailLengthMultiplier, int anchor)
     {
-        Vector3 position = CalculatePosition(x, y, beat);
-
-        GameObject spawnedRail = Instantiate(railObject, position, Quaternion.identity);
+        GameObject spawnedRail = Instantiate(railObject, Vector3.zero, Quaternion.identity);
         Rail railComp = spawnedRail.GetComponent<Rail>();
 
         spawnedRail.GetComponent<LineRenderer>().material.color = GetColor(color);
@@ -157,6 +150,8 @@ public class Spawner : MonoBehaviour
         railComp.tailLengthMultiplier = tailLengthMultiplier;
         railComp.anchor = anchor;
 
+        railComp.Update();
+
         spawnables.Add(spawnedRail);
 
         return railComp;
@@ -169,10 +164,7 @@ public class Spawner : MonoBehaviour
 
     public BurstSlider SpawnBurstSlider(int index, float beat, int x, int y, int color, int cutDirection, float tailBeat, int tailX, int tailY, int sliceCount, float squash)
     {
-        Vector3 position = CalculatePosition(x, y, beat);
-        Quaternion rotation = CalculateRotation(cutDirection, 0);
-
-        GameObject spawnedBS = Instantiate(bsObject, position, rotation);
+        GameObject spawnedBS = Instantiate(bsObject, Vector3.zero, Quaternion.identity);
         BurstSlider bsComp = spawnedBS.GetComponent<BurstSlider>();
 
         spawnedBS.GetComponent<Renderer>().material.color = GetColor(color);
@@ -188,6 +180,8 @@ public class Spawner : MonoBehaviour
         bsComp.tailY = tailY;
         bsComp.sliceCount = sliceCount;
         bsComp.squash = squash;
+
+        bsComp.Update();
 
         spawnables.Add(spawnedBS);
 
