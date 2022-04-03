@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public abstract class Spawnable : MonoBehaviour
+public abstract class Spawnable : Selectable
 {
     [Header("Spawnable")]
     public int index;
@@ -12,21 +10,17 @@ public abstract class Spawnable : MonoBehaviour
     public int x;
     public int y;
 
-    public bool selected = false;
-
     protected bool transparent;
 
-    public void Update()
+    public virtual void Update()
     {
-        float beatsTilHit = beat - GlobalData.currentBeat;
 
         transform.position = Spawner.CalculatePosition(x, y, beat);
 
-        if (!selected && (beatsTilHit < -0.5f || beatsTilHit > GlobalData.HJD))
-        {
-            UnityEngine.Object.Destroy(this.gameObject);
-        }
-        else if (beatsTilHit < 0f && !transparent)
+        CheckForDestroy();
+
+        float beatsTilHit = beat - GlobalData.currentBeat;
+        if (beatsTilHit < 0f && !transparent)
         {
             transparent = true;
             SetAlpha(0.3f);
@@ -36,8 +30,6 @@ public abstract class Spawnable : MonoBehaviour
             transparent = false;
             SetAlpha(1);
         }
-
-        SetGlow(selected);
     }
 
     void OnDestroy()
@@ -45,7 +37,7 @@ public abstract class Spawnable : MonoBehaviour
         Spawner.RemoveSpawnable(gameObject);
     }
 
-    public void SetAlpha(float alpha)
+    public virtual void SetAlpha(float alpha)
     {
         List<Material> materials = gameObject.GetComponent<Renderer>().materials.ToList();
 
@@ -57,13 +49,6 @@ public abstract class Spawnable : MonoBehaviour
         }
     }
 
-    public void SetGlow(bool glow)
-    {
-        Material material = gameObject.GetComponent<Renderer>().material;
-
-        material.SetFloat("_commentIfZero_EnableOutlinePass", glow ? 1 : 0);
-    }
-
     public virtual void Moved()
     {
         Changed();
@@ -72,5 +57,19 @@ public abstract class Spawnable : MonoBehaviour
     public virtual void Changed()
     {
         MapManager.UpdateSpawnable(this);
+    }
+
+    public virtual void CheckForDestroy()
+    {
+        float beatsTilHit = beat - GlobalData.currentBeat;
+        if (!selected && (beatsTilHit < -0.5f || beatsTilHit > GlobalData.HJD))
+        {
+            Spawner.Destroy(gameObject);
+        }
+    }
+
+    public override Spawnable GetRoot()
+    {
+        return this;
     }
 }

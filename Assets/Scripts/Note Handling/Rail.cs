@@ -117,9 +117,9 @@ public class Rail : Colored, HasEnd
         }
     }
 
-    new public void SetGlow(bool glow)
+    public override void SetGlow(bool glow)
     {
-        railEnd.selected = glow;
+        railEnd.Selected(glow);
 
         Material material = gameObject.GetComponent<LineRenderer>().material;
 

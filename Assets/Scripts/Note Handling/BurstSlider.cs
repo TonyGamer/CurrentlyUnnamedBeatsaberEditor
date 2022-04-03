@@ -13,6 +13,7 @@ public class BurstSlider : Colored, HasEnd
 
     [Header("References")]
     public GameObject elementObject;
+    public Note head;
 
     [HideInInspector]
     public Vector3[] controlPoints;
@@ -35,43 +36,40 @@ public class BurstSlider : Colored, HasEnd
 
     void Start()
     {
-        elements = new GameObject[sliceCount];
+        elements = new GameObject[sliceCount - 1];
 
-        for(int i = 0; i < sliceCount; i++)
+        for(int i = 0; i < (sliceCount - 1); i++)
         {
             elements[i] = Instantiate(elementObject, transform);
             elements[i].GetComponent<Renderer>().material.color = Spawner.GetColor(color);
+            elements[i].GetComponent<BurstElement>().head = this;
         }
 
         UpdateRotation();
     }
 
-    new public void Update()
+    public override void Update()
     {
-        float beatsTilHit = beat - GlobalData.currentBeat;
+        base.Update();
 
-        transform.position = Spawner.CalculatePosition(x, y, beat);
+        SetHead(head);
+    }
 
-        if (beatsTilHit < -0.5f || beatsTilHit > GlobalData.HJD)
-        {
-            UnityEngine.Object.Destroy(this.gameObject);
-        }
-        else if (beatsTilHit < 0f && !transparent)
-        {
-            transparent = true;
-            SetAlpha(0.3f);
-        }
-        else if (beatsTilHit >= 0f && transparent)
-        {
-            transparent = false;
-            SetAlpha(1);
-        }
+    void OnDestroy()
+    {
+        Spawner.RemoveSpawnable(gameObject);
 
-        SetGlow(selected);
+        if (head != null)
+        {
+            head.SetHead(false);
+        }
     }
 
     public override void UpdateRotation()
     {
+        head.cutDirection = this.cutDirection;
+        head.UpdateRotation();
+
         transform.rotation = Spawner.CalculateRotation(cutDirection, 0);
         float angle = -Mathf.Deg2Rad * transform.rotation.eulerAngles.z;
 
@@ -86,24 +84,31 @@ public class BurstSlider : Colored, HasEnd
         Changed();
     }
 
+    public override void Moved()
+    {
+        base.Moved();
+
+        head.x = this.x;
+        head.y = this.y;
+
+        head.Moved();
+    }
+
     void DrawCurve()
     {
-        for (int i = 1; i <= sliceCount; i++)
+        for (int i = 1; i <= sliceCount - 1; i++)
         {
-            float t = squash * i / (float)sliceCount;
+            float t = squash * i / (sliceCount - 1);
             Vector3 pixel = CalculateQuadraticBezierPoint(t, controlPoints[0], controlPoints[1], controlPoints[2]);
 
-            Vector3 deltaPixel = pixel - CalculateQuadraticBezierPoint(t+0.01f, controlPoints[0], controlPoints[1], controlPoints[2]);
+            Vector3 lookDir = CalculateQuadraticBezierPointDerivative(t+.01f, controlPoints[0], controlPoints[1], controlPoints[2]);
 
-            deltaPixel.z = 0;
+            float angle = 90 + Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg;
 
-            Quaternion rotation = Quaternion.identity;
-            rotation.SetLookRotation(deltaPixel);
+            Quaternion rotation = Quaternion.Euler(0, 0, angle);
 
-            rotation *= Quaternion.Euler((Vector3.up + Vector3.forward)*90);
-
-            elements[(int)i - 1].transform.position = pixel + transform.position;
-            elements[(int)i - 1].transform.rotation = rotation;
+            elements[i - 1].transform.position = pixel + transform.position;
+            elements[i - 1].transform.rotation = rotation;
         }
     }
 
@@ -112,8 +117,6 @@ public class BurstSlider : Colored, HasEnd
         float u = 1f - t;
         float tt = t * t;
         float uu = u * u;
-        float uuu = uu * u;
-        float ttt = tt * t;
 
         Vector3 p = uu * p0; //first term
         p += 2 * u * t * p1; //second term
@@ -121,8 +124,17 @@ public class BurstSlider : Colored, HasEnd
 
         return p;
     }
+    Vector3 CalculateQuadraticBezierPointDerivative(float t, Vector3 p0, Vector3 p1, Vector3 p2)
+    {
+        float u = 1f - t;
 
-    new public void SetAlpha(float alpha)
+        Vector3 p = 2 * u * (p1 - p0); //first term
+        p += 2 * t * (p2 - p1); // second term
+
+        return p;
+    }
+
+    public override void SetAlpha(float alpha)
     {
         List<Material> materials = gameObject.GetComponent<Renderer>().materials.ToList();
 
@@ -133,21 +145,58 @@ public class BurstSlider : Colored, HasEnd
             material.color = color;
         }
 
-        for(int i = 0; i < sliceCount; i++)
+        foreach (GameObject element in elements)
         {
-            elements[i].GetComponent<BurstElement>().SetAlpha(alpha);
+            BurstElement elementComp = element.GetComponent<BurstElement>();
+
+            elementComp.SetAlpha(alpha);
         }
     }
 
-    new public void SetGlow(bool glow)
+    public override void SetGlow(bool glow)
     {
         Material material = gameObject.GetComponent<Renderer>().material;
 
         material.SetFloat("_commentIfZero_EnableOutlinePass", glow ? 1 : 0);
+
+        foreach(GameObject element in elements)
+        {
+            BurstElement elementComp = element.GetComponent<BurstElement>();
+
+            elementComp.SetGlow(glow);
+        }
     }
 
     public static explicit operator BurstSliderSerial(BurstSlider bs)
     {
         return new BurstSliderSerial(bs.beat, bs.x, bs.y, bs.color, bs.cutDirection, bs.tailBeat, bs.tailX, bs.tailY, bs.sliceCount, bs.squash);
+    }
+
+    public void SetHead(Note head)
+    {
+        this.head = head;
+
+        if (head != null) {
+            head.SetHead(true);
+        }
+
+        CheckHead();
+    }
+
+    public void CheckHead()
+    {
+        Renderer renderer = gameObject.GetComponent<Renderer>();
+
+        renderer.enabled = head != null;
+    }
+
+    public override void Selected(bool selected)
+    {
+        base.Selected(selected);
+
+        foreach(GameObject element in elements)
+        {
+            element.GetComponent<BurstElement>().Selected(selected);
+        }
     }
 }

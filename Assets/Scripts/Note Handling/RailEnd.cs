@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
+﻿using UnityEngine;
 
 [RequireComponent(typeof(Collider))]
 public class RailEnd : Colored
@@ -18,22 +15,6 @@ public class RailEnd : Colored
         UpdateRotation();
     }
 
-    new void Update()
-    {
-        float beatsTilHit = beat - GlobalData.currentBeat;
-
-        transform.position = Spawner.CalculatePosition(x, y, posBeat);
-
-        if (beatsTilHit < -0.5f || beatsTilHit > GlobalData.HJD)
-        {
-            UnityEngine.Object.Destroy(this.gameObject);
-        }
-
-        SetGlow(selected);
-
-        prevBeat = beat;
-    }
-
     public override void Moved()
     {
         posBeat += prevBeat - beat;
@@ -44,5 +25,15 @@ public class RailEnd : Colored
     public override void UpdateRotation()
     {
         railStart.UpdateRotation();
+    }
+
+    public override void SetGlow(bool glow)
+    {
+        return;
+    }
+
+    public override void SetAlpha(float alpha)
+    {
+        return;
     }
 }

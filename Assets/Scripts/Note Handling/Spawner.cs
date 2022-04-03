@@ -198,7 +198,7 @@ public class Spawner : MonoBehaviour
     {
         foreach (GameObject spawnable in spawnables)
         {
-            Object.Destroy(spawnable);
+            Destroy(spawnable);
         }
     }
 
@@ -268,6 +268,7 @@ public class Spawner : MonoBehaviour
     public static void RemoveSpawnable(GameObject spawnable)
     {
         spawnables.Remove(spawnable);
+        Destroy(spawnable.gameObject);
     }
 
     public void AdjustSpawnableIndicies(int index)

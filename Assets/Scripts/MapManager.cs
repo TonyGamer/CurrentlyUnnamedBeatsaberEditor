@@ -1,5 +1,4 @@
-﻿using static EditorController;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,7 +40,7 @@ public class MapManager : MonoBehaviour
 
     private bool hasAudioLoaded;
 
-    private int spawnIndex = -1;
+    private static int spawnIndex = -1;
     private int oldestSpawnIndex = 0;
     private float prevBeat;
 
@@ -111,23 +110,13 @@ public class MapManager : MonoBehaviour
 
         UpdateTimeRemaining();
 
-        if (audioSource.clip != null)
-        {
-            if (lastSetValue != progressBar.value)
-            {
-                GlobalData.currentBeat = (GlobalData.bpm * progressBar.value * audioSource.clip.length) / 60;
-                ResyncAudio();
-            }
-
-            progressBar.value = audioSource.time / audioSource.clip.length;
-            lastSetValue = progressBar.value;
-        }
-
         float speed = GlobalData.currentBeat - prevBeat;
 
         if (speed != 0)
         {
             bool direction = speed > 0;
+
+            List<Spawnable> spawnedThisFrame = new List<Spawnable>();
 
             if (direction)
             { // forwards
@@ -136,7 +125,7 @@ public class MapManager : MonoBehaviour
                     while (CheckForSpawn(spawnables[spawnIndex + 1].b, true))
                     {
                         spawnIndex++;
-                        spawner.SpawnSpawnable(spawnables[spawnIndex], spawnIndex);
+                        spawnedThisFrame.Add(spawner.SpawnSpawnable(spawnables[spawnIndex], spawnIndex));
 
                         if (spawnIndex + 1 > end)
                         {
@@ -165,7 +154,7 @@ public class MapManager : MonoBehaviour
                     while (CheckForSpawn(spawnables[oldestSpawnIndex - 1].b, false))
                     {
                         oldestSpawnIndex--;
-                        spawner.SpawnSpawnable(spawnables[oldestSpawnIndex], oldestSpawnIndex);
+                        spawnedThisFrame.Add(spawner.SpawnSpawnable(spawnables[oldestSpawnIndex], oldestSpawnIndex));
 
                         if (oldestSpawnIndex <= 0)
                         {
@@ -187,7 +176,57 @@ public class MapManager : MonoBehaviour
                     }
                 }
             }
+
+            List<BurstSlider> sliders = new List<BurstSlider>();
+            List<Note> notes = new List<Note>();
+            foreach(Spawnable spawnable in spawnedThisFrame)
+            {
+                if(spawnable == null)
+                {
+                    continue;
+                }
+
+                switch (spawnable.GetType().Name)
+                {
+                    case "BurstSlider":
+                        BurstSlider slider = spawnable as BurstSlider;
+                        sliders.Add(slider);
+
+                        foreach(Note noteCheck in notes)
+                        {
+                            if(noteCheck.x == slider.x && noteCheck.y == slider.y && noteCheck.beat == slider.beat)
+                            {
+                                slider.SetHead(noteCheck);
+                                notes.Remove(noteCheck);
+                                sliders.Remove(slider);
+                                break;
+                            }
+                        }
+                        break;
+                    case "Note":
+                        Note note = spawnable as Note;
+                        notes.Add(note);
+
+                        foreach (BurstSlider sliderCheck in sliders)
+                        {
+                            if (note.x == sliderCheck.x && note.y == sliderCheck.y && note.beat == sliderCheck.beat)
+                            {
+                                sliderCheck.SetHead(note);
+                                notes.Remove(note);
+                                sliders.Remove(sliderCheck);
+                                break;
+                            }
+                        }
+                        break;
+                }
+            }
+
+            foreach(BurstSlider slider in sliders)
+            {
+                slider.SetHead(null);
+            }
         }
+
 
         prevBeat = GlobalData.currentBeat;
     }
@@ -207,6 +246,9 @@ public class MapManager : MonoBehaviour
                 audioSource.clip = DownloadHandlerAudioClip.GetContent(www);
             }
         }
+
+        audioSource.Play(); // Required due to a bug with Unity where audioSource.time is always zero until played
+        audioSource.Pause();
 
         int seconds = (int)audioSource.clip.length;
         int minutes = seconds / 60;
@@ -299,7 +341,15 @@ public class MapManager : MonoBehaviour
 
     public void ResyncAudio()
     {
+        if (lastSetValue != progressBar.value)
+        {
+            GlobalData.currentBeat = (GlobalData.bpm * progressBar.value * audioSource.clip.length) / 60;
+        }
+
         audioSource.time = 60 * ((GlobalData.currentBeat) / GlobalData.bpm) + GlobalData.audioOffset;
+
+        progressBar.value = audioSource.time / audioSource.clip.length;
+        lastSetValue = progressBar.value;
 
         if (GlobalData.paused)
         {
@@ -347,11 +397,11 @@ public class MapManager : MonoBehaviour
 
     private List<SpawnableSerial> CreateSpawnablesList(DifData difData)
     {
-        List<NoteSerial> notes = difData.colorNotes.ToList<NoteSerial>();
-        List<BombSerial> bombs = difData.bombNotes.ToList<BombSerial>();
-        List<ObstacleSerial> obstacles = difData.obstacles.ToList<ObstacleSerial>();
-        List<SliderSerial> rails = difData.sliders.ToList<SliderSerial>();
-        List<BurstSliderSerial> burstSliders = difData.burstSliders.ToList<BurstSliderSerial>();
+        List<NoteSerial> notes = difData.colorNotes.ToList();
+        List<BombSerial> bombs = difData.bombNotes.ToList();
+        List<ObstacleSerial> obstacles = difData.obstacles.ToList();
+        List<SliderSerial> rails = difData.sliders.ToList();
+        List<BurstSliderSerial> burstSliders = difData.burstSliders.ToList();
 
         List<SpawnableSerial> spawnables = new List<SpawnableSerial>(notes.Count + bombs.Count + obstacles.Count + rails.Count + burstSliders.Count);
         spawnables.AddRange(notes);
@@ -496,10 +546,7 @@ public class MapManager : MonoBehaviour
     public void DeleteSpawnable(Spawnable spawnableToRemove)
     {
         spawnables.RemoveAt(spawnableToRemove.index);
-
-        Destroy(spawnableToRemove.gameObject);
-
-        spawnIndex--;
+        Spawner.RemoveSpawnable(spawnableToRemove.gameObject);
     }
 
     public IEnumerator<object> GhostAudio()

@@ -7,6 +7,7 @@ public class Note : Colored
 {
     [Header("Note")]
     public int angleOffset;
+    private bool isHead; // Used for sliders
 
     [Header("References")]
     public ParticleSystem particle;
@@ -41,5 +42,16 @@ public class Note : Colored
     public static explicit operator NoteSerial(Note note)
     {
         return new NoteSerial(note.beat, note.x, note.y, note.color, note.cutDirection, note.angleOffset);
+    }
+
+    public void SetHead(bool head)
+    {
+        isHead = head;
+
+        Renderer renderer = gameObject.GetComponent<Renderer>();
+        Collider collider = gameObject.GetComponent<Collider>();
+
+        renderer.enabled = !head;
+        collider.enabled = !head;
     }
 }

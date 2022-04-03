@@ -1,10 +1,17 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class BurstElement : MonoBehaviour
+[RequireComponent(typeof(Collider))]
+public class BurstElement : Selectable
 {
+    public BurstSlider head;
+
+    public BurstElement(BurstSlider head)
+    {
+        this.head = head;
+    }
+
     public void SetAlpha(float alpha)
     {
         List<Material> materials = gameObject.GetComponent<Renderer>().materials.ToList();
@@ -17,10 +24,8 @@ public class BurstElement : MonoBehaviour
         }
     }
 
-    public void SetGlow(bool glow)
+    public override Spawnable GetRoot()
     {
-        Material material = gameObject.GetComponent<Renderer>().material;
-
-        material.SetFloat("_commentIfZero_EnableOutlinePass", glow ? 1 : 0);
+        return head;
     }
 }
