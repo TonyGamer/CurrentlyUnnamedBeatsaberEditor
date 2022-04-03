@@ -106,7 +106,7 @@ public class Spawner : MonoBehaviour
 
     public Obstacle SpawnObstacle(int index, float beat, int x, int y, int width, int height, float duration)
     {
-        Vector3 position = CalculatePosition(x + width - 1, y + height - 1, beat);
+        Vector3 position = CalculatePosition(x + width - 1, y + height - 2, beat);
         float depth = 0.5f * duration * GlobalData.jumpSpeed;
 
         position.z += depth / 2;
@@ -239,7 +239,7 @@ public class Spawner : MonoBehaviour
 
     public static float CalculateZOffset(float beat)
     {
-        return 0.5f * GlobalData.jumpSpeed * (beat - GlobalData.currentBeat);
+        return GlobalData.jumpSpeed * (beat - GlobalData.currentBeat);
     }
 
     public static Vector3 CalculatePosition(float x, float y, float beat)

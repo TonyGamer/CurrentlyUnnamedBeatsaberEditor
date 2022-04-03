@@ -24,7 +24,7 @@ public class Obstacle : Spawnable
     {
         float beatsTilHit = beat - GlobalData.currentBeat;
 
-        Vector3 position = Spawner.CalculatePosition((float)x + (width - 1f)/2, (float)y + (height - 1f)/2, beat);
+        Vector3 position = Spawner.CalculatePosition((float)x + (width - 1f)/2, (float)y + (height - 1f)/2 - 1, beat);
         float depth = 0.5f * duration * GlobalData.jumpSpeed;
         position.z += depth / 2;
         position.z -= .5f;

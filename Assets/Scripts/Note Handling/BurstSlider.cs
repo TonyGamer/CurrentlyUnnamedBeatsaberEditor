@@ -19,8 +19,6 @@ public class BurstSlider : Colored, HasEnd
     [HideInInspector]
     public GameObject[] elements;
 
-    private int curveCount = 0;
-
     public BurstSlider(float beat, int x, int y, int color, int cutDirection, float tailBeat, int tailX, int tailY, int sliceCount, float squash)
     {
         this.beat = beat;
@@ -80,10 +78,8 @@ public class BurstSlider : Colored, HasEnd
         controlPoints = new Vector3[] {
             new Vector3(0, 0, 0),
             new Vector3(Mathf.Sin(angle), Mathf.Cos(angle), 0),
-            new Vector3(tailX - x, tailY - y, 0.5f * GlobalData.jumpSpeed * (tailBeat - beat))
+            new Vector3(tailX - x, tailY - y, GlobalData.jumpSpeed * (tailBeat - beat))
         };
-
-        curveCount = (int)controlPoints.Length / 2;
 
         DrawCurve();
 
@@ -92,40 +88,36 @@ public class BurstSlider : Colored, HasEnd
 
     void DrawCurve()
     {
-        for (int j = 0; j < curveCount; j++)
+        for (int i = 1; i <= sliceCount; i++)
         {
-            for (int i = 1; i <= sliceCount; i++)
-            {
-                float t = squash * i / (float)sliceCount;
-                int nodeIndex = (int)(squash * j * 3f);
-                Vector3 pixel = CalculateQuadraticBezierPoint(t, controlPoints[nodeIndex], controlPoints[nodeIndex + 1], controlPoints[nodeIndex + 2]);
+            float t = squash * i / (float)sliceCount;
+            Vector3 pixel = CalculateQuadraticBezierPoint(t, controlPoints[0], controlPoints[1], controlPoints[2]);
 
-                Vector3 deltaPixel = pixel - CalculateQuadraticBezierPoint(t+0.01f, controlPoints[nodeIndex], controlPoints[nodeIndex + 1], controlPoints[nodeIndex + 2]);
+            Vector3 deltaPixel = pixel - CalculateQuadraticBezierPoint(t+0.01f, controlPoints[0], controlPoints[1], controlPoints[2]);
 
-                deltaPixel.z = 0;
+            deltaPixel.z = 0;
 
-                Quaternion rotation = Quaternion.identity;
-                rotation.SetLookRotation(deltaPixel);
+            Quaternion rotation = Quaternion.identity;
+            rotation.SetLookRotation(deltaPixel);
 
-                rotation *= Quaternion.Euler((Vector3.up + Vector3.forward)*90);
+            rotation *= Quaternion.Euler((Vector3.up + Vector3.forward)*90);
 
-                elements[(int)i - 1].transform.position = pixel + transform.position;
-                elements[(int)i - 1].transform.rotation = rotation;
-            }
+            elements[(int)i - 1].transform.position = pixel + transform.position;
+            elements[(int)i - 1].transform.rotation = rotation;
         }
     }
 
     Vector3 CalculateQuadraticBezierPoint(float t, Vector3 p0, Vector3 p1, Vector3 p2)
     {
-        float u = 1 - t;
+        float u = 1f - t;
         float tt = t * t;
         float uu = u * u;
         float uuu = uu * u;
         float ttt = tt * t;
 
-        Vector3 p = uuu * p0;
-        p += 3 * uu * t * p1;
-        p += 3 * u * tt * p2;
+        Vector3 p = uu * p0; //first term
+        p += 2 * u * t * p1; //second term
+        p += tt * p2; //third term
 
         return p;
     }

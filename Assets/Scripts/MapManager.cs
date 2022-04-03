@@ -109,15 +109,6 @@ public class MapManager : MonoBehaviour
 
         int end = spawnables.Count - 1;
 
-        if (GlobalData.paused)
-        {
-            audioSource.Pause();
-        }
-        else if (!audioSource.isPlaying)
-        {
-            audioSource.Play();
-        }
-
         UpdateTimeRemaining();
 
         if (audioSource.clip != null)
@@ -309,6 +300,15 @@ public class MapManager : MonoBehaviour
     public void ResyncAudio()
     {
         audioSource.time = 60 * ((GlobalData.currentBeat) / GlobalData.bpm) + GlobalData.audioOffset;
+
+        if (GlobalData.paused)
+        {
+            audioSource.Pause();
+        }
+        else if (!audioSource.isPlaying)
+        {
+            audioSource.Play();
+        }
     }
 
     public bool CheckForSpawn(float beat, bool forwards)
@@ -462,7 +462,7 @@ public class MapManager : MonoBehaviour
         timeRemaining.text = string.Format("{0:D1}:{1:D2}", minutes, seconds % 60) + maxTimeString;
     }
 
-    public Spawnable AddSpawnable(EditorController.SpawnableType spawnableType, int x, int y, int color)
+    public Spawnable AddSpawnable(SpawnableType spawnableType, int x, int y, int color)
     {
         int index = spawnables.BinarySearch(new BombSerial(GlobalData.currentBeat, 0, 0));
         if (index < 0) index = ~index;
@@ -500,5 +500,13 @@ public class MapManager : MonoBehaviour
         Destroy(spawnableToRemove.gameObject);
 
         spawnIndex--;
+    }
+
+    public IEnumerator<object> GhostAudio()
+    {
+        audioSource.Play();
+        yield return new WaitForSeconds(60 * GlobalData.beatPrecision / GlobalData.bpm);
+        audioSource.Pause();
+        ResyncAudio();
     }
 }

@@ -362,9 +362,6 @@ MonoBehaviour:
   snapWhenPaused: 1
   mapManager: {fileID: 1546118955}
   snapWhenPausedToggle: {fileID: 1664801248}
-  hitSpawnable: {fileID: 0}
-  spawnableToPlace: 0
-  spawnableColor: 0
 --- !u!4 &49988936
 Transform:
   m_ObjectHideFlags: 0
@@ -4070,10 +4067,14 @@ MonoBehaviour:
   Wall: 51
   Stack: 52
   Rail: 53
+  Delete: 127
   RotLeft: 113
   RotRight: 101
+  Move: 103
   repeatStart: 0.5
   repeatDelay: 0.03
+  spawnableToPlace: 0
+  spawnableColor: 0
   NoteImage: {fileID: 21300000, guid: a0d7080cabd631740a8e9fc2217bcc7a, type: 3}
   BombImage: {fileID: 21300000, guid: 81dff2ea2416ab3419458bb9b420f9e8, type: 3}
   WallImage: {fileID: 21300000, guid: 607144bf17eea1248af1cc72ceb8b31f, type: 3}
@@ -5555,7 +5556,7 @@ MonoBehaviour:
   warning: {fileID: 2016869736}
   progressBar: {fileID: 741862203}
   timeRemaining: {fileID: 270102428}
-  selectedFolder: D:\Downloads\Map
+  selectedFolder: D:\Downloads\23692 (Dreamin' Dreamer - namaki_mono)
 --- !u!4 &1546118956
 Transform:
   m_ObjectHideFlags: 0

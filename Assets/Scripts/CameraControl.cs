@@ -4,13 +4,20 @@ using static EditorController;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class CameraControl : MonoBehaviour
 {
+    // Cursor Control
+    [DllImport("user32.dll")]
+    public static extern bool SetCursorPos(int X, int Y);
+    [DllImport("user32.dll")]
+    public static extern bool GetCursorPos(out POINT lpPoint);
+
     [Header("Constants")]
-    //unity controls and constants input
+    // Unity controls and constants input
     public float AccelerationMod;
     public float XAxisSensitivity;
     public float YAxisSensitivity;
@@ -53,9 +60,21 @@ public class CameraControl : MonoBehaviour
     public KeyCode RotLeft = KeyCode.Q;
     public KeyCode RotRight = KeyCode.E;
 
+    public KeyCode Move = KeyCode.G;
+
     [Header("Key Repeat")]
     public float repeatStart = 0.5f;
     public float repeatDelay = 0.05f;
+
+    [Header("Spawnable Placement")]
+    public SpawnableType spawnableToPlace = SpawnableType.Note;
+    public int spawnableColor = 0;
+
+    private Spawnable hitSpawnable;
+    private Spawnable lastHitSpawnable;
+
+    private Plane hitPlane;
+    private Vector3 offset;
 
     [Header("Images")]
     public Sprite NoteImage;
@@ -82,6 +101,9 @@ public class CameraControl : MonoBehaviour
 
     private Key RotLeftKey;
     private Key RotRightKey;
+
+    private bool movingObject;
+    private bool movingObjectPrev;
 
     void Start()
     {
@@ -124,7 +146,7 @@ public class CameraControl : MonoBehaviour
 
         HandleDeceleration(Time.deltaTime * acceleration);
 
-        // clamp the move speed
+        // Clamp the move speed
         if (_moveSpeed.magnitude > MaximumMovementSpeed)
         {
             _moveSpeed = _moveSpeed.normalized * MaximumMovementSpeed;
@@ -232,94 +254,169 @@ public class CameraControl : MonoBehaviour
     private void HandleEditorControls()
     {
         // Menu
-        KeyRepeat(ref MenuKey, ToggleMenu, 0);
+        KeyRepeat(ref MenuKey, ToggleMenu);
 
-        // Seeking Controls
-        KeyRepeat(ref PauseKey, TogglePaused, 0);
-
-        if (Input.GetKey(KeyCode.LeftControl))
+        if (!menuManager.gameObject.activeSelf)
         {
-            ChangePrecision(-(int)Input.mouseScrollDelta.y);
+            // Seeking Controls
+            KeyRepeat(ref PauseKey, TogglePaused);
 
-            if (Input.GetKeyDown(Save)) mapManager.SaveDiff();
-        }
-        else if (Input.GetKey(KeyCode.LeftAlt))
-        {
-            editorController.ChangeBeat((int)Input.mouseScrollDelta.y);
-        }
-        else
-        {
-            KeyRepeat(ref PrecUpKey, ChangePrecision, -1);
-            KeyRepeat(ref PrecDownKey, ChangePrecision, 1);
-            KeyRepeat(ref SeekBackKey, Seek, -1f);
-            KeyRepeat(ref SeekForeKey, Seek, 1f);
+            if (Input.GetKey(KeyCode.LeftControl))
+            {
+                ChangePrecision(-(int)Input.mouseScrollDelta.y);
 
-            if (Input.GetKeyDown(Note))
-            {
-                editorController.spawnableToPlace = SpawnableType.Note;
-                indicator.sprite = NoteImage;
+                if (Input.GetKeyDown(Save)) mapManager.SaveDiff();
             }
-            else if (Input.GetKeyDown(Bomb))
+            else if (Input.GetKey(KeyCode.LeftAlt))
             {
-                editorController.spawnableToPlace = SpawnableType.Bomb;
-                indicator.sprite = BombImage;
-            }
-            else if (Input.GetKeyDown(Wall))
-            {
-                editorController.spawnableToPlace = SpawnableType.Wall;
-                indicator.sprite = WallImage;
-            }
-            else if (Input.GetKeyDown(Stack))
-            {
-                editorController.spawnableToPlace = SpawnableType.Stack;
-                indicator.sprite = StackImage;
-            }
-            else if (Input.GetKeyDown(Rail))
-            {
-                editorController.spawnableToPlace = SpawnableType.Rail;
-                indicator.sprite = RailImage;
-            }
-
-            if (Input.GetKeyDown(Delete))
-            {
-                editorController.DeleteSelected();
-            }
-
-            if (Input.GetMouseButtonDown(2))
-            {
-                if (editorController.spawnableColor == 1)
+                if(hitSpawnable != null)
                 {
-                    indicator.color = Color.red;
-                    editorController.spawnableColor = 0;
+                    ChangeBeat((int)Input.mouseScrollDelta.y);
+                }
+            }
+            else if (!movingObject)
+            {
+                KeyRepeat(ref PrecUpKey, () => ChangePrecision(-1));
+                KeyRepeat(ref PrecDownKey, () => ChangePrecision(1));
+                KeyRepeat(ref SeekBackKey, () => Seek(-1f));
+                KeyRepeat(ref SeekForeKey, () => Seek(1f));
+
+                KeyRepeat(ref RotLeftKey, () => RotateCurrent(-1));
+                KeyRepeat(ref RotRightKey, () => RotateCurrent(1));
+
+                if (Input.GetKeyDown(Note))
+                {
+                    spawnableToPlace = SpawnableType.Note;
+                    indicator.sprite = NoteImage;
+                }
+                else if (Input.GetKeyDown(Bomb))
+                {
+                    spawnableToPlace = SpawnableType.Bomb;
+                    indicator.sprite = BombImage;
+                }
+                else if (Input.GetKeyDown(Wall))
+                {
+                    spawnableToPlace = SpawnableType.Wall;
+                    indicator.sprite = WallImage;
+                }
+                else if (Input.GetKeyDown(Stack))
+                {
+                    spawnableToPlace = SpawnableType.Stack;
+                    indicator.sprite = StackImage;
+                }
+                else if (Input.GetKeyDown(Rail))
+                {
+                    spawnableToPlace = SpawnableType.Rail;
+                    indicator.sprite = RailImage;
+                }
+
+                if (Input.GetKeyDown(Delete))
+                {
+                    mapManager.DeleteSpawnable(hitSpawnable);
+                }
+
+                if (Input.GetMouseButtonDown(2))
+                {
+                    if (spawnableColor == 1)
+                    {
+                        indicator.color = Color.red;
+                        spawnableColor = 0;
+                    }
+                    else
+                    {
+                        indicator.color = Color.blue;
+                        spawnableColor = 1;
+                    }
+                }
+
+                Seek(Input.mouseScrollDelta.y);
+            }
+
+            if (Input.anyKeyDown || Input.GetMouseButtonUp(0))
+            {
+                movingObject = false;
+            }
+
+            if ((Input.GetKeyDown(Move) || Input.GetMouseButtonDown(0)) && !movingObjectPrev)
+            {
+                movingObject = true;
+            }
+
+            if (Input.GetMouseButtonDown(0) && !movingObjectPrev)
+            {
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                RaycastHit hit;
+                if (Physics.Raycast(ray, out hit, Mathf.Infinity, ~(1 << 8)))
+                {
+                    hitSpawnable = hit.transform.GetComponent<Spawnable>();
+
+                    if (hitSpawnable != null)
+                    {
+                        hitSpawnable.selected = !hitSpawnable.selected;
+                    }
+                }
+                else if (hitSpawnable == null)
+                {
+                    hitPlane = new Plane(Vector3.forward, Vector3.zero);
+                    Vector3 spawnPosition = GetPlaneIntersect();
+
+                    hitSpawnable = mapManager.AddSpawnable(spawnableToPlace, (int)Mathf.Floor(spawnPosition.x + 2), (int)Mathf.Floor(spawnPosition.y), spawnableColor);
+
+                    if (hitSpawnable != null)
+                    {
+                        hitSpawnable.selected = true;
+                    }
                 }
                 else
                 {
-                    indicator.color = Color.blue;
-                    editorController.spawnableColor = 1;
+                    hitSpawnable.selected = false;
+                    hitSpawnable = null;
+                }
+
+                if (lastHitSpawnable != null && lastHitSpawnable != hitSpawnable)
+                {
+                    lastHitSpawnable.selected = false;
+                }
+
+                lastHitSpawnable = hitSpawnable;
+            }
+
+            if (movingObject && !movingObjectPrev && hitSpawnable != null)
+            {
+                hitPlane = new Plane(Vector3.forward, hitSpawnable.transform.position);
+                offset = GetPlaneIntersect() - new Vector3(hitSpawnable.x, hitSpawnable.y, 0);
+            }
+
+            if (movingObject && hitSpawnable != null)
+            {
+                if (hitSpawnable.selected)
+                {
+                    Vector3 curPosition = GetPlaneIntersect() - offset;
+
+                    MoveCurrent((int)Mathf.Floor(curPosition.x + 0.5f), (int)Mathf.Floor(curPosition.y + 0.5f));
+
+                    hitSpawnable.Moved();
                 }
             }
 
-            KeyRepeat(ref RotLeftKey, RotateCurrent, -1);
-            KeyRepeat(ref RotRightKey, RotateCurrent, 1);
-
-            Seek(Input.mouseScrollDelta.y);
+            movingObjectPrev = movingObject;
         }
     }
 
-    public void ToggleMenu(float _)
+    // Functions for key presses
+    private void ToggleMenu()
     {
         menuManager.gameObject.SetActive(!menuManager.gameObject.activeSelf);
     }
 
-    public void TogglePaused(float _)
+    public void TogglePaused()
     {
-        mapManager.ResyncAudio();
         GlobalData.paused = !GlobalData.paused;
+        mapManager.ResyncAudio();
     }
 
-    public void ChangePrecision(float amount)
+    public void ChangePrecision(int amount)
     {
-        int amt = (int)amount;
 
         GlobalData.beatPrecision *= Mathf.Pow(2, amount);
     }
@@ -332,14 +429,33 @@ public class CameraControl : MonoBehaviour
         }
         GlobalData.currentBeat += amount * GlobalData.beatPrecision;
         mapManager.ResyncAudio();
+        StartCoroutine(mapManager.GhostAudio());
     }
 
-    public void RotateCurrent(float direction)
+    public void RotateCurrent(int direction)
     {
-        editorController.RotateCurrent(direction);
+        if (hitSpawnable.GetType().IsSubclassOf(typeof(Colored)) && hitSpawnable.selected)
+        {
+            Colored hitColored = hitSpawnable as Colored;
+            hitColored.cutDirection = (((hitColored.cutDirection + (int)direction) % 8) + 8) % 8;
+            hitColored.UpdateRotation();
+        }
     }
 
-    public void KeyRepeat(ref Key key, Action<float> func, float argument)
+    private void MoveCurrent(int x, int y)
+    {
+        hitSpawnable.x = x;
+        hitSpawnable.y = y;
+    }
+
+    private void ChangeBeat(float beat)
+    {
+        hitSpawnable.beat += beat * GlobalData.beatPrecision;
+        hitSpawnable.Moved();
+    }
+
+    // Execute a function repetitively when a key is held
+    public void KeyRepeat(ref Key key, Action func)
     {
         if (Input.GetKey(key.code))
         {
@@ -353,7 +469,7 @@ public class CameraControl : MonoBehaviour
 
             if (!key.prev)
             {
-                func(argument);
+                func();
                 key.prev = true;
             }
         }
@@ -363,18 +479,50 @@ public class CameraControl : MonoBehaviour
             key.prev = false;
         }
     }
-}
 
-public struct Key
-{
-    public Key(KeyCode keyCode)
+    private Vector3 GetPlaneIntersect()
     {
-        this.code = keyCode;
-        this.timer = 0f;
-        this.prev = false;
+        float depth = 0;
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        hitPlane.Raycast(ray, out depth);
+
+        Vector3 curScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, depth);
+        Vector3 curPosition = Camera.main.ScreenToWorldPoint(curScreenPoint);
+
+        return curPosition;
     }
 
-    public KeyCode code { get; set; }
-    public float timer { get; set; }
-    public bool prev { get; set; }
+    public struct POINT
+    {
+        public int X;
+        public int Y;
+
+        public POINT(int x, int y)
+        {
+            this.X = x;
+            this.Y = y;
+        }
+    }
+    public struct Key
+    {
+        public Key(KeyCode keyCode)
+        {
+            this.code = keyCode;
+            this.timer = 0f;
+            this.prev = false;
+        }
+
+        public KeyCode code { get; set; }
+        public float timer { get; set; }
+        public bool prev { get; set; }
+    }
+}
+
+public enum SpawnableType
+{
+    Note,
+    Bomb,
+    Wall,
+    Stack,
+    Rail
 }

@@ -14,6 +14,8 @@ public class Rail : Colored, HasEnd
     public int tailLengthMultiplier;
     public int anchor;
 
+    private const int LENGTH_CONSTANT = 3;
+
     [Header("References")]
     public GameObject railEndInstance;
 
@@ -136,9 +138,9 @@ public class Rail : Colored, HasEnd
 
         controlPoints = new Vector3[] {
             new Vector3(0, 0, 0),
-            new Vector3(lengthMultiplier * 2 * Mathf.Sin(angle), lengthMultiplier * 2 * Mathf.Cos(angle), 0),
-            new Vector3((tailX - x) + (tailLengthMultiplier * 2 * Mathf.Sin(tailAngle)), (tailY - y) - (tailLengthMultiplier * 2 * Mathf.Cos(tailAngle)), 0.5f * GlobalData.jumpSpeed * (tailBeat - beat)),
-            new Vector3(tailX - x, tailY - y, 0.5f * GlobalData.jumpSpeed * (tailBeat - beat))
+            new Vector3(lengthMultiplier * LENGTH_CONSTANT * Mathf.Sin(angle), lengthMultiplier * LENGTH_CONSTANT * Mathf.Cos(angle), 0),
+            new Vector3((tailX - x) + (tailLengthMultiplier * LENGTH_CONSTANT * Mathf.Sin(tailAngle)), (tailY - y) - (tailLengthMultiplier * LENGTH_CONSTANT * Mathf.Cos(tailAngle)), GlobalData.jumpSpeed * (tailBeat - beat)),
+            new Vector3(tailX - x, tailY - y, GlobalData.jumpSpeed * (tailBeat - beat))
         };
 
         curveCount = (int)controlPoints.Length / 3;
