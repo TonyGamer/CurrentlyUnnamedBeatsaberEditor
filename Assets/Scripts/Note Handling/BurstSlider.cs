@@ -44,7 +44,7 @@ public class BurstSlider : Colored
             {
                 elements[i] = Instantiate(elementObject, transform);
                 elements[i].GetComponent<Renderer>().material.color = Spawner.GetColor(color);
-                elements[i].GetComponent<BurstElement>().head = this;
+                elements[i].GetComponent<SubMesh>().head = this;
             }
 
             UpdateRotation();
@@ -160,7 +160,7 @@ public class BurstSlider : Colored
 
         foreach (GameObject element in elements)
         {
-            BurstElement elementComp = element.GetComponent<BurstElement>();
+            SubMesh elementComp = element.GetComponent<SubMesh>();
 
             elementComp.SetAlpha(alpha);
         }
@@ -174,7 +174,7 @@ public class BurstSlider : Colored
 
         foreach(GameObject element in elements)
         {
-            BurstElement elementComp = element.GetComponent<BurstElement>();
+            SubMesh elementComp = element.GetComponent<SubMesh>();
 
             elementComp.SetGlow(glow);
         }
@@ -209,7 +209,7 @@ public class BurstSlider : Colored
 
         foreach(GameObject element in elements)
         {
-            element.GetComponent<BurstElement>().SliderSelect(selected);
+            element.GetComponent<SubMesh>().SliderSelect(selected);
         }
     }
 }

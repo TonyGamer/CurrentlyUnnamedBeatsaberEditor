@@ -54,8 +54,8 @@ public class Rail : Colored
 
         railEnd.parent = this;
 
-        railEnd.x = tailX;
-        railEnd.y = tailY;
+        railEnd.floatX = tailX;
+        railEnd.floatY = tailY;
         railEnd.beat = tailBeat;
         railEnd.direction = tailDirection;
 

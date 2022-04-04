@@ -21,8 +21,6 @@ public class Note : Colored
 
     public void Start()
     {
-        Debug.Log(cutDirection);
-        Debug.Log(angleOffset);
         transform.rotation = Spawner.CalculateRotation(cutDirection, angleOffset);
 
         var startColor = gameObject.GetComponent<Renderer>().material.color;
